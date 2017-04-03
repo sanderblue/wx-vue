@@ -1,15 +1,8 @@
 <template>
   <div class="container">
-    <div class="Chart__list">
-      <div class="Chart">
-        <h2>Linechart</h2>
-        <line-example></line-example>
-      </div>
-    </div>
+    <div id="line-chart"></div>
   </div>
 </template>
-
-
 
 <script>
 import LineExample from './components/LineChart.js';
@@ -22,12 +15,10 @@ export default {
 };
 </script>
 
-
-
-
-<style scoped>
+<style>
 .container {
   max-width: 800px;
+  height: 350px;
   margin: 0 auto;
 }
 </style>
