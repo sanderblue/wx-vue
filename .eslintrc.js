@@ -24,6 +24,8 @@ module.exports = {
   },
   // add your custom rules here
   'rules': {
+    'indent': 0, // don't enforce indention rules right now bc its annoying during development
+
     // don't require .vue extension when importing
     'import/extensions': ['error', 'always', {
       'js': 'never',
@@ -34,6 +36,15 @@ module.exports = {
       'optionalDependencies': ['test/unit/index.js']
     }],
     // allow debugger during development
-    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0
+    'no-debugger': process.env.NODE_ENV === 'production' ? 2 : 0,
+    'no-console': [
+      'error', {
+        'allow': [
+          'warn',
+          'error',
+          'debug',
+        ]
+      }
+    ],
   }
 }
