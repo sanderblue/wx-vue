@@ -24,6 +24,9 @@ module.exports = {
   },
   // add your custom rules here
   'rules': {
+    'no-unreachable': 0, // disabling because this is annoying in development
+    'padded-blocks': 0, // disabling because this is annoying in development
+    'no-unused-vars': 0, // disabling because this is annoying in development
     'indent': 0, // don't enforce indention rules right now bc its annoying during development
 
     // don't require .vue extension when importing
