@@ -113,6 +113,8 @@ export default {
   },
 
   beforeCreate() {
+    let apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
+
     this.geolocationModel = new GeolocationModel();
 
     this.geolocationModel.getCurrentPosition({
@@ -124,9 +126,14 @@ export default {
 
     // console.debug('beforeCreate...', this);
 
-    let tenDayForecastUrl = 'http://api.wunderground.com/api/1e0a7bd45ab35633/forecast10day/q/TN/Nashville.json';
+    let tenDayForecastUrl = apiPrefix + '/forecast10day/q/TN/Nashville.json';
 
-    let currentConditionsUrl = 'http://api.wunderground.com/api/1e0a7bd45ab35633/conditions/q/CA/San_Francisco.json';
+    let latitude = '36.1926263';
+    let longitude = '-86.7941163';
+
+    let geolookupUrl = apiPrefix + '/geolookup/q/'+ [latitude, longitude].join(',') + '.json';
+
+    let currentConditionsUrl = apiPrefix + '/conditions/q/'+ [latitude, longitude].join(',') +'.json';
 
     // api.wunderground.com/api/1e0a7bd45ab35633/history_'+ date +'/q/81657.json
 
@@ -140,7 +147,19 @@ export default {
       console.debug('Forecast...', forecastData[0]);
 
       this.forecastData = forecastData;
-    })
+    });
+
+    axios.get(geolookupUrl).then((res) => {
+      let data = res.data;
+
+      console.debug('Geolookup...', data);
+    });
+
+    axios.get(currentConditionsUrl).then((res) => {
+      let data = res.data;
+
+      console.debug('Current Conditions...', data);
+    });
   },
 
   created: function () {
