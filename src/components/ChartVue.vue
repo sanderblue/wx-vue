@@ -2,14 +2,16 @@
   <div class="chart-container">
     <div class="row collapse">
       <div class="small-12 columns">
-        <label for="zip">Zip Code</label>
-        <input id="zip" type="text" name="zip" v-model="zip">
+        <div class="text-center">
+          <h1>Current Conditions</h1>
+          <h2>{{ locationData.full }}</h2>
+          <div class="temp-large">{{ currentConditions.temp }}&deg;</div>
+        </div>
       </div>
     </div>
     <canvas class="chart"></canvas>
   </div>
 </template>
-
 
 <script>
 import Chart from 'chart.js'
@@ -23,9 +25,9 @@ const blue = 'rgba(42, 183, 202, 0.9)';
 
 console.clear()
 console.log('')
-// console.debug('GeolocationModel', GeolocationModel)
 
-/* eslint-disable no-new */
+const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
+
 export default {
   name: 'chart',
 
@@ -35,6 +37,20 @@ export default {
       forecastData: [],
       labels: [],
       datasets: [],
+      geoCoordinates: {
+        latitude: null,
+        longitude: null
+      },
+      currentConditions: {
+        temp: null,
+        weather: null, // clear, cloudy, etc
+      },
+      locationData: {
+        city: null,
+        state: null,
+        full: null,
+        elevation: null
+      }
     }
   },
 
@@ -72,6 +88,32 @@ export default {
       this.setLabels(dates);
       this.setDatasets(datesets);
       this.renderChart(true);
+    },
+
+    geoCoordinates(value) {
+      console.debug('geoCoordinates changed!', value.latitude);
+
+      let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
+
+      axios.get(currentConditionsUrl).then((res) => {
+        let data = res.data.current_observation;
+
+        console.debug('Current Conditions...', data);
+
+        this.currentConditions = {
+          temp: data.temp_f,
+          weather: data.weather
+        };
+
+        this.locationData = {
+          city: data.display_location.city,
+          state: data.display_location.state,
+          full: data.display_location.full,
+          elevation: data.display_location.elevation
+        };
+      });
+
+      // console.debug('currentConditionsUrl', currentConditionsUrl);
     }
   },
 
@@ -113,53 +155,34 @@ export default {
   },
 
   beforeCreate() {
-    let apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
+    let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
-    this.geolocationModel = new GeolocationModel();
+    axios.get(geoLocationApiUrl).then((res) => {
+      console.debug('Location API Response...', res.data);
 
-    this.geolocationModel.getCurrentPosition({
-      enableHighAccuracy: true,
-      timeout: 5000,
-      maximumAge: 0
+      this.geoCoordinates = {
+        latitude: res.data.latitude,
+        longitude: res.data.longitude
+      };
     });
 
+    // this.geolocationModel = new GeolocationModel();
 
-    // console.debug('beforeCreate...', this);
-
-    let tenDayForecastUrl = apiPrefix + '/forecast10day/q/TN/Nashville.json';
-
-    let latitude = '36.1926263';
-    let longitude = '-86.7941163';
-
-    let geolookupUrl = apiPrefix + '/geolookup/q/'+ [latitude, longitude].join(',') + '.json';
-
-    let currentConditionsUrl = apiPrefix + '/conditions/q/'+ [latitude, longitude].join(',') +'.json';
-
-    // api.wunderground.com/api/1e0a7bd45ab35633/history_'+ date +'/q/81657.json
-
-    // let request = new Request(endpoint, {
-    //   method: 'get',
+    // this.geolocationModel.getCurrentPosition({
+    //   enableHighAccuracy: true,
+    //   timeout: 5000,
+    //   maximumAge: 0
     // });
 
-    axios.get(tenDayForecastUrl).then((res) => {
-      let forecastData = res.data.forecast.simpleforecast.forecastday;
+    // let tenDayForecastUrl = apiPrefix + '/forecast10day/q/TN/Nashville.json';
 
-      console.debug('Forecast...', forecastData[0]);
+    // axios.get(tenDayForecastUrl).then((res) => {
+    //   let forecastData = res.data.forecast.simpleforecast.forecastday;
 
-      this.forecastData = forecastData;
-    });
+    //   console.debug('Forecast...', forecastData[0]);
 
-    axios.get(geolookupUrl).then((res) => {
-      let data = res.data;
-
-      console.debug('Geolookup...', data);
-    });
-
-    axios.get(currentConditionsUrl).then((res) => {
-      let data = res.data;
-
-      console.debug('Current Conditions...', data);
-    });
+    //   this.forecastData = forecastData;
+    // });
   },
 
   created: function () {
@@ -196,8 +219,13 @@ export default {
 }
 </script>
 
-<style type="text/css" scoped>
+<style scoped>
+  .temp-large {
+    font-size: 10vh;
+  }
+
   .chart {
+    display: none !important;
     height: 200px;
     width: 320px;
     margin: 0 auto;

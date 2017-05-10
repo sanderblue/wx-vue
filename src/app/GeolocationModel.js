@@ -4,7 +4,6 @@ export default class GeolocationModel {
     }
 
     getCurrentPosition(options) {
-
         navigator.geolocation.getCurrentPosition(
             this.onGetCurrentPositionSuccess.bind(this),
             this.onGetCurrentPositionFail.bind(this),
