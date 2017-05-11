@@ -1,0 +1,11 @@
+@import "./fonts";
+
+// Load custom Foundation variables
+@import "./settings";
+
+// Load Foundation
+@import "~foundation-sites/scss/foundation";
+
+@include foundation-everything();
+
+@import "./typography";

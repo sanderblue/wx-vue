@@ -1,0 +1,64 @@
+$assets-path: '../src/assets/fonts/';
+
+@font-face {
+    font-family: 'Quicksand-Dash';
+    src: url('#{$assets-path}Quicksand-Dash.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Dash.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Bold';
+    src: url('#{$assets-path}Quicksand-Bold.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Bold.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Bold-Italic';
+    src: url('#{$assets-path}Quicksand-Bold-Italic.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Bold-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Italic';
+    src: url('#{$assets-path}Quicksand-Italic.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Light';
+    src: url('#{$assets-path}Quicksand-Light.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Light.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Light-Italic';
+    src: url('#{$assets-path}Quicksand-Light-Italic.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Light-Italic.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
+
+@font-face {
+    font-family: 'Quicksand-Regular';
+    src: url('#{$assets-path}Quicksand-Regular.woff2') format('woff2'),
+         url('#{$assets-path}Quicksand-Regular.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
