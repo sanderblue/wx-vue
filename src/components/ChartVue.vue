@@ -1,14 +1,5 @@
 <template>
   <div class="chart-container">
-    <div class="row collapse">
-      <div class="small-12 columns">
-        <div class="text-center">
-          <h1>Current Conditions</h1>
-          <h2>{{ locationData.full }}</h2>
-          <div class="temp-large">{{ currentConditions.temp }}&deg;</div>
-        </div>
-      </div>
-    </div>
     <canvas class="chart"></canvas>
   </div>
 </template>
@@ -44,6 +35,7 @@ export default {
       currentConditions: {
         temp: null,
         weather: null, // clear, cloudy, etc
+        relativeHumidity: null
       },
       locationData: {
         city: null,
@@ -102,7 +94,8 @@ export default {
 
         this.currentConditions = {
           temp: data.temp_f,
-          weather: data.weather
+          weather: data.weather,
+          relativeHumidity: data.relative_humidity
         };
 
         this.locationData = {

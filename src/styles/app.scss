@@ -8,4 +8,8 @@
 
 @include foundation-everything();
 
+@import '~weather-icons/css/weather-icons.css';
+
 @import "./typography";
+@import "./header";
+@import "./weather-icons";

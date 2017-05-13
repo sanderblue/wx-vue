@@ -62,3 +62,15 @@ $assets-path: '../src/assets/fonts/';
     font-style: normal;
 
 }
+
+
+
+
+@font-face {
+    font-family: 'Fabrica';
+    src: url('#{$assets-path}Fabrica.woff2') format('woff2'),
+         url('#{$assets-path}Fabrica.woff') format('woff');
+    font-weight: normal;
+    font-style: normal;
+
+}
