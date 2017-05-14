@@ -5,12 +5,13 @@
       <div class="weather">{{ wx.weather }}</div>
     </div>
     <div class="small-7 columns">
-      <div class="temp">{{ wx.temp.f }}&deg;</div>
-      <div>
+      <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
+      <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
+      <div class="wx-row">
         <span class="wx-label">Humidity:</span>
         <span>{{ wx.relativeHumidity }}</span>
       </div>
-      <div>
+      <div class="wx-row">
         <span class="wx-label">Dewpoint:</span>
         <span>{{ wx.dewpoint.f }}&deg;</span>
       </div>
@@ -205,6 +206,10 @@ export default {
 </script>
 
 <style scoped>
+.current-conditions {
+  padding-top: 1rem;
+  line-height: 1;
+}
 
 .wx-icon {
   font-size: 6rem;
@@ -219,9 +224,18 @@ export default {
   padding-bottom: 0.75rem;
 }
 
+.city {
+  font-size: 1.5rem;
+  /*font-weight: 600;*/
+}
+
 .temp {
-  font-size: 3rem;
+  font-size: 3.5rem;
   font-weight: 600;
+}
+
+.wx-row {
+  margin-bottom: 0.5rem;
 }
 
 .wx-label {

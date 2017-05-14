@@ -10,14 +10,22 @@
   </head>
   <body>
 
-    <header class="header">
-      <div class="title-bar">
-        <div class="title-bar-left">
-          <span class="title-bar-title">WxVue</span>
-        </div>
-        <div class="title-bar-right">
-          <button class="menu-icon" type="button" data-open="wx-menu"></button>
-        </div>
+    <header class="row header">
+      <div class="small-3 wx-title">WxVue</div>
+      <div class="small-6">
+        <form class="header-form">
+          <div class="input-group">
+            <input class="input-group-field" type="text">
+            <div class="input-group-button">
+              <button type="submit" class="button">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="small-3 text-right">
+        <button class="menu-icon" type="button" data-open="wx-menu"></button>
       </div>
     </header>
 
