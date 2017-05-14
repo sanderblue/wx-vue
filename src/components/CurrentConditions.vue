@@ -1,19 +1,29 @@
 <template>
   <div class="current-conditions">
-    <div class="small-5 columns text-center">
-      <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
-      <div class="weather">{{ wx.weather }}</div>
-    </div>
-    <div class="small-7 columns">
-      <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
-      <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
-      <div class="wx-row">
-        <span class="wx-label">Humidity:</span>
-        <span>{{ wx.relativeHumidity }}</span>
+    <div class="row">
+      <div class="small-5 columns text-center">
+        <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
+        <div class="weather">{{ wx.weather }}</div>
       </div>
-      <div class="wx-row">
-        <span class="wx-label">Dewpoint:</span>
-        <span>{{ wx.dewpoint.f }}&deg;</span>
+      <div class="small-7 columns">
+        <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
+        <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
+        <div class="wx-row">
+          <span class="wx-label">Humidity:</span>
+          <span>{{ wx.relativeHumidity }}</span>
+        </div>
+        <div class="wx-row">
+          <span class="wx-label">Dewpoint:</span>
+          <span>{{ wx.dewpoint.f }}&deg;</span>
+        </div>
+      </div>
+    </div>
+    <div class="row hourly-details">
+      <div class="small-12 columns">
+        <h4 class="text-center">Hourly Forecast</h4>
+        <div class="chart-container">
+          <canvas class="chart"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -23,10 +33,13 @@
 import axios from 'axios'
 import _ from 'lodash'
 import moment from 'moment'
+import Chart from 'chart.js'
 
 console.clear();
 
 const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
+const red = 'rgba(254, 74, 73, 0.9)';
+const blue = 'rgba(42, 183, 202, 0.9)';
 
 /**
  * Map of Wunderground API weather condition states to weather icon class names.
@@ -95,14 +108,65 @@ export default {
         uv: null,
         icon: null,
         wxIcon: null
-      }
+      },
+      forecast: {
+        hourly: null
+      },
+      chartLabels: [],
+      chartDatasets: []
     }
   },
 
   watch: {
     geoCoordinates(value) {
 
-      // console.debug('geoCoordinates changed!', value.latitude);
+      let hourlyUrl = `${apiPrefix}/hourly/q/${value.latitude},${value.longitude}.json`;
+
+      axios.get(hourlyUrl).then((res) => {
+        let data = res.data.hourly_forecast;
+
+        let mappedData = _.map(data, (hourlyData) => {
+          // console.debug('value', hourlyData);
+
+          return {
+            epoch: hourlyData.FCTTIME.epoch,
+            temp: {
+              f: hourlyData.temp.english,
+              c: hourlyData.temp.metric
+            },
+            relativeHumidity: hourlyData.humidity
+          };
+        });
+
+        this.forecast.hourly = mappedData;
+        this.chartLabels = this.extractDates(this.forecast.hourly);
+
+        let temps = _.map(this.forecast.hourly, 'temp.f');
+        temps.length = 12;
+
+        this.chartDatasets = [
+          {
+            label: 'Temp',
+            fill: false,
+            data: temps,
+            borderColor: red
+          }
+        ];
+
+        // console.debug('extractDates', this.extractDates(this.forecast.hourly));
+
+        let hourlyTimes = this.extractDates(this.forecast.hourly);
+
+        console.debug('this.chartDatasets', hourlyTimes.length);
+
+        hourlyTimes.length = 12;
+
+        this.setLabels(hourlyTimes);
+        this.setDatasets(this.chartDatasets);
+        this.renderChart(true);
+
+        // console.debug('Hourly data...', this.forecast.hourly);
+      });
 
       let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
 
@@ -165,20 +229,38 @@ export default {
 
   methods: {
     extractDates(arr) {
-      return _.map(arr, function (dayData, index) {
-        let date = moment.unix(dayData.date.epoch);
+      return _.map(arr, (data, index) => {
+        let date = moment.unix(data.epoch);
 
-        return date.format('ddd MMM D');
+        return date.format('ha');
       });
     },
 
     extractTemps(arr) {
-      return _.map(arr, function (dayData, index) {
+      return _.map(arr, (data, index) => {
         return {
           high: dayData.high.fahrenheit,
           low: dayData.low.fahrenheit
         };
       });
+    },
+
+    setDatasets(datasets) {
+      this.chartHourly.data.datasets = datasets;
+    },
+
+    setLabels(labels) {
+      this.chartHourly.data.labels = labels;
+    },
+
+    renderChart(update) {
+      console.debug('Rendering chart...', this.chartHourly);
+
+      if (update) {
+        this.chartHourly.update();
+      } else {
+        this.chartHourly.render();
+      }
     }
   },
 
@@ -201,6 +283,34 @@ export default {
 
   mounted() {
     // console.debug('mounted...')
+
+    this.canvasElement = this.$el.querySelector('canvas');
+
+    Chart.defaults.global.legend = {
+      display: false
+    };
+
+    // init chart.js
+    this.chartHourly = new Chart(this.canvasElement, {
+      type: 'line',
+      data: {
+        labels: this.chartLabels,
+        datasets: this.chartDatasets
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true
+            }
+          }]
+        }
+      }
+    });
+
+    this.renderChart(false);
   }
 }
 </script>
@@ -240,5 +350,19 @@ export default {
 
 .wx-label {
   font-weight: 600;
+}
+
+.hourly-details {
+  margin-top: 2rem;
+}
+
+.chart-container {
+  height: 25vh;
+  width: 90vw;
+
+  canvas {
+    height: inherit;
+    width: inherit;
+  }
 }
 </style>

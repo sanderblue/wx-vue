@@ -136,7 +136,7 @@ export default {
       this._chart.data.labels = labels;
     },
 
-    renderChart: function (update) {
+    renderChart(update) {
       console.debug('Rendering...', this._chart.data.datasets);
 
       if (update) {
