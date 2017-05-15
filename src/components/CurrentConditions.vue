@@ -48,19 +48,22 @@ const blue = 'rgba(42, 183, 202, 0.9)';
  */
 const weatherIconMap = {
   clear: 'wi-day-sunny',
+  mostlycloudy: 'wi-cloudy',
   cloudy: 'wi-day-cloudy',
-  fog: 'wi-day-cloudy',
-  sleet: 'wi-day-sleet',
-  snow: 'wi-day-snow',
-  rain: 'wi-day-rain'
+  fog: 'wi-fog',
+  sleet: 'wi-sleet',
+  snow: 'wi-snow',
+  rain: 'wi-rain'
 };
 
 export default {
   name: 'chart',
+  props: [
+    'locale'
+  ],
 
   data() {
     return {
-      zip: null,
       geoCoordinates: {
         latitude: null,
         longitude: null
@@ -118,6 +121,18 @@ export default {
   },
 
   watch: {
+    locale: function () {
+      console.debug('locale changed', this.locale);
+
+      let apiUrl = `${apiPrefix}/conditions/q/${this.locale}.json`;
+
+      this.getWxData(apiUrl)
+        .then(this.setData.bind(this))
+        .then(() => {
+          console.debug('Data has been set!');
+        });
+    },
+
     geoCoordinates(value) {
       let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
 
@@ -335,6 +350,8 @@ export default {
   },
 
   mounted() {
+    console.debug('Mounted --- this.wx ', this.wx);
+
     this.canvasElement = this.$el.querySelector('canvas');
 
     Chart.defaults.global.legend = {

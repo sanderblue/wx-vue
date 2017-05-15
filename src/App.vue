@@ -4,7 +4,17 @@
     <header class="row header">
       <div class="small-3 wx-title">WxVue</div>
       <div class="small-6">
-        <search></search>
+        <!-- <search></search> -->
+        <form class="header-form">
+          <div class="input-group">
+            <input class="input-group-field" type="text" v-model="userLocation" placeholder="Zip code">
+            <div class="input-group-button">
+              <button class="button" v-on:click="onClickSubmit">
+                <i class="fa fa-search"></i>
+              </button>
+            </div>
+          </div>
+        </form>
       </div>
       <div class="small-3 text-right">
         <button class="menu-icon" type="button" data-open="wx-menu"></button>
@@ -20,7 +30,7 @@
 
     <main class="row small-12 columns small-centered" role="main">
       <div class="main-content">
-        <currentconditions></currentconditions>
+        <currentconditions :locale="locale"></currentconditions>
       </div>
     </main>
 
@@ -30,15 +40,32 @@
 
 
 <script>
-import Search from './components/Search';
+// import Search from './components/Search';
 import CurrentConditions from './components/CurrentConditions';
 
 export default {
   name: 'app',
   components: {
-    'search': Search,
+    // 'search': Search,
     'currentconditions': CurrentConditions
   },
+  methods: {
+    onClickSubmit(e) {
+      e.preventDefault();
+
+      console.debug('SUBMIT', this.userLocation);
+
+      this.locale = this.userLocation;
+    }
+  },
+
+  data() {
+    return {
+      userLocation: '',
+      locale: ''
+    };
+  },
+
   mounted() {
     $(document).foundation();
   }

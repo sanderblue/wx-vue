@@ -31,6 +31,8 @@ export default {
       e.preventDefault();
 
       console.debug('SUBMIT', e);
+
+      this.$root.$emit('wx.search.submit', this.locale);
     }
   }
 };
