@@ -35,7 +35,7 @@ import _ from 'lodash'
 import moment from 'moment'
 import Chart from 'chart.js'
 
-console.clear();
+// console.clear();
 
 const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
 const red = 'rgba(254, 74, 73, 0.9)';
@@ -127,21 +127,25 @@ export default {
       let apiUrl = `${apiPrefix}/conditions/q/${this.locale}.json`;
 
       this.getWxData(apiUrl)
-        .then(this.setData.bind(this))
+        .then(this.setData.bind(this, id))
         .then(() => {
           console.debug('Data has been set!');
         });
     },
 
     geoCoordinates(value) {
+      let id = `${value.zip_code}`;
+
+      console.debug('Data ID:', value);
+
+
       let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
 
-      let key = 'wx';
-      let wxData = this.getData(key);
+      let wxData = this.getData(id);
 
       if (!wxData) {
         this.getWxData(currentConditionsUrl)
-          .then(this.setData.bind(this))
+          .then(this.setData.bind(this, id))
           .then(() => {
             console.debug('No data to start, but data has been fetched and set now!');
           });
@@ -156,7 +160,7 @@ export default {
           console.debug('Fetching new weather data...');
 
           this.getWxData(currentConditionsUrl)
-            .then(this.setData.bind(this))
+            .then(this.setData.bind(this, id))
             .then(() => {
               console.debug('Data has been set!');
             });
@@ -164,58 +168,6 @@ export default {
           this.wx = JSON.parse(wxData);
         }
       }
-
-      // let hourlyUrl = `${apiPrefix}/hourly/q/${value.latitude},${value.longitude}.json`;
-
-      // axios.get(hourlyUrl).then((res) => {
-      //   let data = res.data.hourly_forecast;
-
-      //   let mappedData = _.map(data, (hourlyData) => {
-      //     // console.debug('value', hourlyData);
-
-      //     return {
-      //       epoch: hourlyData.FCTTIME.epoch,
-      //       temp: {
-      //         f: hourlyData.temp.english,
-      //         c: hourlyData.temp.metric
-      //       },
-      //       relativeHumidity: hourlyData.humidity
-      //     };
-      //   });
-
-      //   this.forecast.hourly = mappedData;
-      //   this.chartLabels = this.extractDates(this.forecast.hourly);
-
-      //   let temps = _.map(this.forecast.hourly, 'temp.f');
-      //   temps.length = 12;
-
-      //   this.chartDatasets = [
-      //     {
-      //       label: 'Temp',
-      //       fill: false,
-      //       data: temps,
-      //       borderColor: red,
-      //       pointRadius: 0.5,
-      //       pointHitRadius: 5,
-      //       pointHoverBackgroundColor: red,
-      //       pointHoverBorderColor: red
-      //     }
-      //   ];
-
-      //   // console.debug('extractDates', this.extractDates(this.forecast.hourly));
-
-      //   let hourlyTimes = this.extractDates(this.forecast.hourly);
-
-      //   console.debug('this.chartDatasets', hourlyTimes.length);
-
-      //   hourlyTimes.length = 12;
-
-      //   this.setLabels(hourlyTimes);
-      //   this.setDatasets(this.chartDatasets);
-      //   this.renderChart(true);
-
-      //   // console.debug('Hourly data...', this.forecast.hourly);
-      // });
     }
   },
 
@@ -230,7 +182,7 @@ export default {
       return axios.get(url);
     },
 
-    setData(res) {
+    setData(id, res) {
       console.debug('Setting data...', res);
 
       let data = res.data.current_observation;
@@ -238,7 +190,9 @@ export default {
       this.icon = weatherIconMap[data.icon_url];
 
       this.wx = {
+        id: id,
         station: {
+          id: data.station_id,
           city: data.observation_location.city,
           state: data.observation_location.state,
           country: data.observation_location.country,
@@ -285,15 +239,19 @@ export default {
         wxIcon: weatherIconMap[data.icon]
       };
 
-      this.storeData('wx', this.wx);
+      this.storeData(this.wx.id, this.wx);
     },
 
-    storeData(key, data) {
-      localStorage.setItem(key, JSON.stringify(data));
+    storeData(id, data) {
+      console.debug('Storing data...', id);
+
+      localStorage.setItem(id, JSON.stringify(data));
     },
 
-    getData(key) {
-      return localStorage.getItem(key);
+    getData(id) {
+      console.debug('Get localStorage id...', id);
+
+      return localStorage.getItem(id);
     },
 
     extractDates(arr) {
@@ -336,12 +294,9 @@ export default {
     let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
     axios.get(geoLocationApiUrl).then((res) => {
-      // console.debug('Location API Response...', res.data);
+      console.debug('Location API Response...', res.data);
 
-      this.geoCoordinates = {
-        latitude: res.data.latitude,
-        longitude: res.data.longitude
-      };
+      this.geoCoordinates = res.data;
     });
   },
 

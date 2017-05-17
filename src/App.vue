@@ -4,7 +4,6 @@
     <header class="row header">
       <div class="small-3 wx-title">WxVue</div>
       <div class="small-6">
-        <!-- <search></search> -->
         <form class="header-form">
           <div class="input-group">
             <input class="input-group-field" type="text" v-model="userLocation" placeholder="Zip code">
@@ -40,13 +39,11 @@
 
 
 <script>
-// import Search from './components/Search';
 import CurrentConditions from './components/CurrentConditions';
 
 export default {
   name: 'app',
   components: {
-    // 'search': Search,
     'currentconditions': CurrentConditions
   },
   methods: {
