@@ -1,11 +1,11 @@
 <template>
   <div class="current-conditions">
     <div class="row">
-      <div class="small-5 columns text-center">
+      <div class="small-7 columns text-center">
         <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
         <div class="weather">{{ wx.weather }}</div>
       </div>
-      <div class="small-7 columns">
+      <div class="small-9 columns">
         <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
         <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
         <div class="wx-row">
@@ -19,7 +19,7 @@
       </div>
     </div>
     <div class="row hourly-details">
-      <div class="small-12 columns">
+      <div class="small-16 columns">
         <h4 class="text-center">12-hour Forecast</h4>
         <div class="chart-container">
           <canvas class="chart"></canvas>
@@ -30,12 +30,11 @@
 </template>
 
 <script>
-import axios from 'axios'
-import _ from 'lodash'
-import moment from 'moment'
-import Chart from 'chart.js'
-
-// console.clear();
+import axios from 'axios';
+import _ from 'lodash';
+import moment from 'moment';
+import Chart from 'chart.js';
+import jsonp from 'jsonp';
 
 const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
 const red = 'rgba(254, 74, 73, 0.9)';
@@ -48,6 +47,7 @@ const blue = 'rgba(42, 183, 202, 0.9)';
  */
 const weatherIconMap = {
   clear: 'wi-day-sunny',
+  partlycloudy: 'wi-day-cloudy',
   mostlycloudy: 'wi-cloudy',
   cloudy: 'wi-day-cloudy',
   fog: 'wi-fog',
@@ -138,6 +138,7 @@ export default {
 
       console.debug('Data ID:', value);
 
+      return; //// NO API requests for the time being.
 
       let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
 
@@ -188,6 +189,8 @@ export default {
       let data = res.data.current_observation;
 
       this.icon = weatherIconMap[data.icon_url];
+
+      console.debug('weatherIconMap[data.icon]', weatherIconMap[data.icon]);
 
       this.wx = {
         id: id,
@@ -364,6 +367,21 @@ export default {
   }
 }
 </script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 <style scoped>
 .current-conditions {

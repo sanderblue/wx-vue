@@ -2,11 +2,11 @@
   <div>
 
     <header class="row header">
-      <div class="small-3 wx-title">WxVue</div>
-      <div class="small-6">
+      <div class="small-4 wx-title">WxVue</div>
+      <div class="small-8">
         <form class="header-form">
           <div class="input-group">
-            <input class="input-group-field" type="text" v-model="userLocation" placeholder="Zip code">
+            <input v-on:input="search" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
             <div class="input-group-button">
               <button class="button" v-on:click="onClickSubmit">
                 <i class="fa fa-search"></i>
@@ -15,7 +15,7 @@
           </div>
         </form>
       </div>
-      <div class="small-3 text-right">
+      <div class="small-4 text-right">
         <button class="menu-icon" type="button" data-open="wx-menu"></button>
       </div>
     </header>
@@ -27,7 +27,7 @@
       </ul>
     </div>
 
-    <main class="row small-12 columns small-centered" role="main">
+    <main class="row small-16 columns small-centered" role="main">
       <div class="main-content">
         <currentconditions :locale="locale"></currentconditions>
       </div>
@@ -39,7 +39,11 @@
 
 
 <script>
+import _ from 'lodash';
+import jsonp from 'jsonp';
 import CurrentConditions from './components/CurrentConditions';
+
+const autoCompleteApiPrefix = 'http://autocomplete.wunderground.com/aq?h=0&query=';
 
 export default {
   name: 'app',
@@ -53,7 +57,26 @@ export default {
       console.debug('SUBMIT', this.userLocation);
 
       this.locale = this.userLocation;
-    }
+    },
+
+    search: _.debounce(function (e) {
+      console.debug('Search event', e.target.value);
+      // console.debug('Search value', e.currentTarget.value);
+
+      // if () {
+
+      // }
+
+      let queryEncoded = encodeURIComponent(e.target.value);
+      let aqUrl = `${autoCompleteApiPrefix}${queryEncoded}`;
+      let jsonpOptions = {
+        param: 'cb',
+      };
+
+      jsonp(aqUrl, jsonpOptions, function (err, data) {
+        console.debug('HOLY SMOKES', data.RESULTS);
+      });
+    }, 250)
   },
 
   data() {
