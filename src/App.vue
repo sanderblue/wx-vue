@@ -7,6 +7,13 @@
         <form class="header-form">
           <div class="input-group">
             <input v-on:input="search" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
+
+            <ul v-show="hasItems" class="aq-results">
+              <li v-for="item in searchResults">
+                <div v-text="item.name"></div>
+              </li>
+            </ul>
+
             <div class="input-group-button">
               <button class="button" v-on:click="onClickSubmit">
                 <i class="fa fa-search"></i>
@@ -63,9 +70,12 @@ export default {
       console.debug('Search event', e.target.value);
       // console.debug('Search value', e.currentTarget.value);
 
-      // if () {
+      if (!e.target.value || !e.target.value.length) {
+        console.debug('NO RESULTS', e.target.value);
 
-      // }
+        this.searchResults = [];
+        return;
+      }
 
       let queryEncoded = encodeURIComponent(e.target.value);
       let aqUrl = `${autoCompleteApiPrefix}${queryEncoded}`;
@@ -75,20 +85,29 @@ export default {
 
       jsonp(aqUrl, jsonpOptions, function (err, data) {
         console.debug('HOLY SMOKES', data.RESULTS);
-      });
+
+        this.searchResults = data.RESULTS;
+      }.bind(this));
     }, 250)
   },
 
   data() {
     return {
       userLocation: '',
-      locale: ''
+      locale: '',
+      searchResults: [],
     };
   },
 
   mounted() {
     $(document).foundation();
-  }
+  },
+
+  computed: {
+    hasItems() {
+      return this.searchResults.length > 0
+    }
+  },
 };
 </script>
 
