@@ -7,6 +7,12 @@
       </div>
       <div class="small-9 columns">
         <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
+        <div class="wx-row location-elevations">
+          <div class="station-elevation">
+            <strong>Elevation:</strong>
+            <span>{{ wx.station.elevation }}</span>
+          </div>
+        </div>
         <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
         <div class="wx-row">
           <span class="wx-label">Humidity:</span>
@@ -25,6 +31,10 @@
           <canvas class="chart"></canvas>
         </div>
       </div>
+    </div>
+    <button class="button" v-on:click="clearLocalStorage">Clear Local Storage</button>
+    <div class="json">
+      <pre v-html="responseData"></pre>
     </div>
   </div>
 </template>
@@ -53,7 +63,8 @@ const weatherIconMap = {
   fog: 'wi-fog',
   sleet: 'wi-sleet',
   snow: 'wi-snow',
-  rain: 'wi-rain'
+  rain: 'wi-rain',
+  tstorms: 'wi-thunderstorm'
 };
 
 export default {
@@ -118,6 +129,7 @@ export default {
       chartLabels: [],
       chartDatasets: [],
       localeId: null,
+      responseData: {}, // for testing and debugging only
     }
   },
 
@@ -140,19 +152,28 @@ export default {
   },
 
   methods: {
+    getWxData(url) {
+      return axios.get(url);
+    },
+
+    getElapsedMinutes(epochNow, epochBefore) {
+      let elapsedSeconds = epochNow - epochBefore;
+
+      return elapsedSeconds / 60;
+    },
+
     updateUI(locale) {
-      console.debug('Update UI for ID...', locale);
-
       let id = `${locale}`;
-
-      let currentConditionsUrl = `${apiPrefix}/conditions/q/${id}.json`;
+      let apiEndpoint = `${apiPrefix}/conditions/hourly/q/${id}.json`;
       let wxData = this.getData(id);
 
       if (!wxData) {
-        this.getWxData(currentConditionsUrl)
+        this.getWxData(apiEndpoint)
           .then(this.setData.bind(this, id))
           .then(() => {
             console.debug('No data to start, but data has been fetched and set now!');
+
+            this.getHourlyForecastData(this.wx);
           });
 
       } else {
@@ -164,88 +185,89 @@ export default {
         if (elapsedMinutes >= 10) {
           console.debug('Fetching new weather data...');
 
-          this.getWxData(currentConditionsUrl)
+          this.getWxData(apiEndpoint)
             .then(this.setData.bind(this, id))
             .then(() => {
               console.debug('Data has been set!');
+
+              this.getHourlyForecastData(this.wx);
             });
         } else {
           this.wx = JSON.parse(wxData);
+
+          this.getHourlyForecastData(this.wx);
         }
       }
 
-      let hourlyForecastUrl = `${apiPrefix}/hourly/q/${id}.json`;
+      console.debug('');
+      console.debug('----------------');
+      console.debug('this.WX', this.wx);
+      console.debug('----------------');
+      console.debug('');
 
-      this.getHourlyForecastData(hourlyForecastUrl);
-    },
-
-    getElapsedMinutes(epochNow, epochBefore) {
-      let elapsedSeconds = epochNow - epochBefore;
-
-      return elapsedSeconds / 60;
-    },
-
-    getWxData(url) {
-      return axios.get(url);
+      this.responseData = this.wx;
     },
 
     setData(id, res) {
-      console.debug('Setting data...', res);
+      console.debug('Setting id...  ', id);
+      console.debug('Setting res... ', res);
 
-      let data = res.data.current_observation;
+      let currentConditions = res.data.current_observation;
+      let hrlyForecast = res.data.hourly_forecast;
 
-      this.icon = weatherIconMap[data.icon_url];
-
-      // console.debug('weatherIconMap[data.icon]', weatherIconMap[data.icon]);
+      this.icon = weatherIconMap[currentConditions.icon_url];
 
       this.wx = {
         id: id,
         station: {
-          id: data.station_id,
-          city: data.observation_location.city,
-          state: data.observation_location.state,
-          country: data.observation_location.country,
-          full: data.observation_location.full,
-          elevation: data.observation_location.elevation,
-          latitude: data.observation_location.latitude,
-          longitude: data.observation_location.latitude,
+          id: currentConditions.station_id,
+          city: currentConditions.observation_location.city,
+          state: currentConditions.observation_location.state,
+          country: currentConditions.observation_location.country,
+          full: currentConditions.observation_location.full,
+          elevation: currentConditions.observation_location.elevation,
+          latitude: currentConditions.observation_location.latitude,
+          longitude: currentConditions.observation_location.latitude,
         },
         location: {
-          city: data.display_location.city,
-          state: data.display_location.state,
-          country: data.display_location.country,
-          elevation: data.display_location.elevation,
-          fullName: data.display_location.full,
-          latitude: data.display_location.latitude,
-          longitude: data.display_location.longitude,
-          zip: data.display_location.zip,
+          city: currentConditions.display_location.city,
+          state: currentConditions.display_location.state,
+          country: currentConditions.display_location.country,
+          elevation: currentConditions.display_location.elevation,
+          fullName: currentConditions.display_location.full,
+          latitude: currentConditions.display_location.latitude,
+          longitude: currentConditions.display_location.longitude,
+          zip: currentConditions.display_location.zip,
         },
         updatedAt: {
-          epoch: data.observation_epoch,
-          date: new Date(data.observation_epoch * 1000),
-          timestamp: data.observation_epoch * 1000
+          epoch: currentConditions.observation_epoch,
+          date: new Date(currentConditions.observation_epoch * 1000),
+          timestamp: currentConditions.observation_epoch * 1000
         },
         checkedAt: {
           epoch: moment().unix()
         },
-        weather: data.weather,
+        weather: currentConditions.weather,
         temp: {
-          c: data.temp_c,
-          f: data.temp_f,
-          k: data.temp_c + 273.15 // Kelvin
+          c: currentConditions.temp_c,
+          f: currentConditions.temp_f,
+          k: currentConditions.temp_c + 273.15 // Kelvin
         },
         dewpoint: {
-          c: data.dewpoint_c,
-          f: data.dewpoint_f
+          c: currentConditions.dewpoint_c,
+          f: currentConditions.dewpoint_f
         },
-        relativeHumidity: data.relative_humidity,
+        relativeHumidity: currentConditions.relative_humidity,
         heatIndex: {
-          c: data.heat_index_c,
-          f: data.heat_index_f
+          c: currentConditions.heat_index_c,
+          f: currentConditions.heat_index_f
         },
-        uv: data.uv,
-        icon: data.icon,
-        wxIcon: weatherIconMap[data.icon]
+        uv: currentConditions.uv,
+        icon: currentConditions.icon,
+        wxIcon: weatherIconMap[currentConditions.icon],
+        forecast: {
+          hourly: hrlyForecast
+        }
       };
 
       this.storeData(this.wx.id, this.wx);
@@ -258,66 +280,50 @@ export default {
     },
 
     getData(id) {
-      console.debug('Get localStorage id...', id);
+      console.debug('LocalStorage::getItem - ', id);
 
       return localStorage.getItem(id);
     },
 
-    getHourlyForecastData(url) {
-      console.debug('getHourlyForecastData', url);
-
-      let hourlyUrl = url;
-
-      axios.get(hourlyUrl).then((res) => {
-        let data = res.data.hourly_forecast;
-
-        let mappedData = _.map(data, (hourlyData) => {
-          // console.debug('value', hourlyData);
-
-          return {
-            epoch: hourlyData.FCTTIME.epoch,
-            temp: {
-              f: hourlyData.temp.english,
-              c: hourlyData.temp.metric
-            },
-            relativeHumidity: hourlyData.humidity
-          };
-        });
-
-        this.forecast.hourly = mappedData;
-        this.chartLabels = this.extractDates(this.forecast.hourly);
-
-        let temps = _.map(this.forecast.hourly, 'temp.f');
-        temps.length = 12;
-
-        this.chartDatasets = [
-          {
-            label: 'Temp',
-            fill: false,
-            data: temps,
-            borderColor: red,
-            pointRadius: 1.5,
-            pointHitRadius: 5,
-            pointBackgroundColor: red,
-            pointHoverBackgroundColor: red,
-            pointHoverBorderColor: red
-          }
-        ];
-
-        // console.debug('extractDates', this.extractDates(this.forecast.hourly));
-
-        let hourlyTimes = this.extractDates(this.forecast.hourly);
-
-        console.debug('this.chartDatasets', hourlyTimes.length);
-
-        hourlyTimes.length = 12;
-
-        this.setLabels(hourlyTimes);
-        this.setDatasets(this.chartDatasets);
-        this.renderChart(true);
-
-        // console.debug('Hourly data...', this.forecast.hourly);
+    getHourlyForecastData(wxData) {
+      let mappedData = _.map(wxData.forecast.hourly, (hourlyData) => {
+        return {
+          epoch: hourlyData.FCTTIME.epoch,
+          temp: {
+            f: hourlyData.temp.english,
+            c: hourlyData.temp.metric
+          },
+          relativeHumidity: hourlyData.humidity
+        };
       });
+
+      this.forecast.hourly = mappedData;
+      this.chartLabels = this.extractDates(this.forecast.hourly);
+
+      let temps = _.map(this.forecast.hourly, 'temp.f');
+      temps.length = 12;
+
+      this.chartDatasets = [
+        {
+          label: 'Temp',
+          fill: false,
+          data: temps,
+          borderColor: red,
+          pointRadius: 1.5,
+          pointHitRadius: 5,
+          pointBackgroundColor: red,
+          pointHoverBackgroundColor: red,
+          pointHoverBorderColor: red
+        }
+      ];
+
+      let hourlyTimes = this.extractDates(this.forecast.hourly);
+
+      hourlyTimes.length = 12;
+
+      this.setLabels(hourlyTimes);
+      this.setDatasets(this.chartDatasets);
+      this.renderChart(true);
     },
 
     extractDates(arr) {
@@ -346,13 +352,17 @@ export default {
     },
 
     renderChart(update) {
-      console.debug('Rendering chart...', this.chartHourly);
+      // console.debug('Rendering chart...', this.chartHourly);
 
       if (update) {
         this.chartHourly.update();
       } else {
         this.chartHourly.render();
       }
+    },
+
+    clearLocalStorage() {
+      localStorage.clear();
     }
   },
 
@@ -360,7 +370,7 @@ export default {
     let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
     axios.get(geoLocationApiUrl).then((res) => {
-      console.debug('Location API Response...', res.data);
+      // console.debug('Location API Response...', res.data);
 
       this.geoCoordinates = res.data;
     });
@@ -371,15 +381,11 @@ export default {
   },
 
   mounted() {
-    console.debug('Mounted --- this.wx ', this.wx);
-
     this.canvasElement = this.$el.querySelector('canvas');
 
     Chart.defaults.global.legend = {
       display: false
     };
-
-    console.debug('Mounted --- geoCoordinates ', this.geoCoordinates);
 
     this.chartHourly = new Chart(this.canvasElement, {
       type: 'line',
@@ -431,33 +437,10 @@ export default {
 }
 </script>
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 <style scoped>
 .current-conditions {
   padding-top: 1rem;
   line-height: 1;
-}
-
-.wx-icon {
-  font-size: 6rem;
-}
-
-.wi-day-sunny {
-  color: #FFCD2B;
 }
 
 .weather {
@@ -466,8 +449,7 @@ export default {
 }
 
 .city {
-  font-size: 1.5rem;
-  /*font-weight: 600;*/
+  font-size: 1.625rem;
 }
 
 .temp {
@@ -491,6 +473,7 @@ export default {
   height: 20vh;
   max-height: 120px;
   width: 90vw;
+  margin-bottom: 3rem;
 
   canvas {
     height: inherit;

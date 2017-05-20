@@ -4,19 +4,19 @@
     <header class="row header">
       <div class="small-4 wx-title">WxVue</div>
       <div class="small-8">
-        <form class="header-form">
+        <form class="header-form" v-on:submit.passive="">
           <div class="input-group">
-            <input v-on:keyup="search" v-on:blur="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
+            <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
 
             <div class="input-group-button">
-              <button class="button" v-on:click="onClickSubmit">
+              <button type="button" class="button" v-on:click.passive="onClickSubmit">
                 <i class="fa fa-search"></i>
               </button>
             </div>
 
             <ul v-show="hasItems" class="aq-results">
               <li v-for="item in searchResults">
-                <div v-text="item.name" v-on:click.prevent="onClickSearchResult" v-bind:data-zmw="item.zmw"></div>
+                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-zmw="item.zmw"></div>
               </li>
             </ul>
           </div>
@@ -50,8 +50,18 @@ import _ from 'lodash';
 import jsonp from 'jsonp';
 import CurrentConditions from './components/CurrentConditions';
 
+/**
+ * Utilizes jsonp and does not count against Wunderground API usage rates.
+ *
+ * @type {String}
+ */
 const autoCompleteApiPrefix = 'http://autocomplete.wunderground.com/aq?h=0&query=';
 
+/**
+ * App Component
+ *
+ * This is the main entry point of the app.
+ */
 export default {
   name: 'app',
   components: {
@@ -63,12 +73,13 @@ export default {
       userLocation: '',
       locale: '',
       searchResults: [],
+      localStorageData: {} // just for testing
     };
   },
 
   methods: {
     onClickSubmit(e) {
-      e.preventDefault();
+      // e.preventDefault();
 
       console.debug('SUBMIT', this.userLocation);
 
@@ -100,11 +111,7 @@ export default {
     }, 200),
 
     search: _.debounce(function (e) {
-      // console.debug('Search event', e);
-
       if (!e.target.value || !e.target.value.length) {
-        // console.debug('NO RESULTS', e.target.value);
-
         this.searchResults = [];
         return;
       }
@@ -116,8 +123,6 @@ export default {
       };
 
       jsonp(aqUrl, jsonpOptions, function (err, data) {
-        // console.debug('HOLY SMOKES', data.RESULTS);
-
         this.searchResults = data.RESULTS;
       }.bind(this));
     }, 150)
