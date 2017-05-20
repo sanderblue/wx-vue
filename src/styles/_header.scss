@@ -62,10 +62,20 @@
     list-style-type: none;
     background-color: #e2e2e2;
     color: $black;
+    height: 15vh;
+    min-height: 15rem;
+    overflow-y: scroll;
+    z-index: 1;
 
     li {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
-        line-height: 1.8;
+        line-height: 1.9;
+        cursor: pointer;
+        font-size: 0.8125rem;
+
+        &:hover {
+            background-color: darken(#e2e2e2, 8%);
+        }
     }
 }

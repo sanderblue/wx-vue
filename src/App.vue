@@ -6,19 +6,19 @@
       <div class="small-8">
         <form class="header-form">
           <div class="input-group">
-            <input v-on:input="search" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
-
-            <ul v-show="hasItems" class="aq-results">
-              <li v-for="item in searchResults">
-                <div v-text="item.name"></div>
-              </li>
-            </ul>
+            <input v-on:keyup="search" v-on:blur="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
 
             <div class="input-group-button">
               <button class="button" v-on:click="onClickSubmit">
                 <i class="fa fa-search"></i>
               </button>
             </div>
+
+            <ul v-show="hasItems" class="aq-results">
+              <li v-for="item in searchResults">
+                <div v-text="item.name" v-on:click.prevent="onClickSearchResult" v-bind:data-zmw="item.zmw"></div>
+              </li>
+            </ul>
           </div>
         </form>
       </div>
@@ -57,6 +57,15 @@ export default {
   components: {
     'currentconditions': CurrentConditions
   },
+
+  data() {
+    return {
+      userLocation: '',
+      locale: '',
+      searchResults: [],
+    };
+  },
+
   methods: {
     onClickSubmit(e) {
       e.preventDefault();
@@ -66,12 +75,35 @@ export default {
       this.locale = this.userLocation;
     },
 
+    onClickSearchResult(e) {
+      let id = e.currentTarget.dataset.zmw;
+
+      console.debug('CLICK SEARCH RESULT', id);
+
+      // Might be able to directly use the data attribute instead
+      // of searching through the results.
+      let result = _.find(this.searchResults, (item) => {
+        return item.zmw == id;
+      });
+
+      console.debug('Result', result);
+
+      this.locale = result.zmw;
+
+      this.searchResults = [];
+
+      e.currentTarget.value = '';
+    },
+
+    onBlurSearch: _.debounce(function () {
+      this.searchResults = [];
+    }, 200),
+
     search: _.debounce(function (e) {
-      console.debug('Search event', e.target.value);
-      // console.debug('Search value', e.currentTarget.value);
+      // console.debug('Search event', e);
 
       if (!e.target.value || !e.target.value.length) {
-        console.debug('NO RESULTS', e.target.value);
+        // console.debug('NO RESULTS', e.target.value);
 
         this.searchResults = [];
         return;
@@ -84,19 +116,11 @@ export default {
       };
 
       jsonp(aqUrl, jsonpOptions, function (err, data) {
-        console.debug('HOLY SMOKES', data.RESULTS);
+        // console.debug('HOLY SMOKES', data.RESULTS);
 
         this.searchResults = data.RESULTS;
       }.bind(this));
-    }, 250)
-  },
-
-  data() {
-    return {
-      userLocation: '',
-      locale: '',
-      searchResults: [],
-    };
+    }, 150)
   },
 
   mounted() {
@@ -105,7 +129,7 @@ export default {
 
   computed: {
     hasItems() {
-      return this.searchResults.length > 0
+      return this.searchResults.length > 0;
     }
   },
 };

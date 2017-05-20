@@ -116,32 +116,36 @@ export default {
         hourly: null
       },
       chartLabels: [],
-      chartDatasets: []
+      chartDatasets: [],
+      localeId: null,
     }
   },
 
   watch: {
     locale: function () {
-      console.debug('locale changed', this.locale);
+      console.debug('');
+      console.debug('');
+      console.debug('LOCALE changed', this.locale);
 
+      let id = `${this.locale}`;
       let apiUrl = `${apiPrefix}/conditions/q/${this.locale}.json`;
+      let wxData = this.getData(id);
 
-      this.getWxData(apiUrl)
-        .then(this.setData.bind(this, id))
-        .then(() => {
-          console.debug('Data has been set!');
-        });
+      this.updateUI(id);
     },
 
     geoCoordinates(value) {
-      let id = `${value.zip_code}`;
+      this.updateUI(value.zip_code);
+    }
+  },
 
-      console.debug('Data ID:', value);
+  methods: {
+    updateUI(locale) {
+      console.debug('Update UI for ID...', locale);
 
-      return; //// NO API requests for the time being.
+      let id = `${locale}`;
 
-      let currentConditionsUrl = `${apiPrefix}/conditions/q/${value.latitude},${value.longitude}.json`;
-
+      let currentConditionsUrl = `${apiPrefix}/conditions/q/${id}.json`;
       let wxData = this.getData(id);
 
       if (!wxData) {
@@ -169,10 +173,12 @@ export default {
           this.wx = JSON.parse(wxData);
         }
       }
-    }
-  },
 
-  methods: {
+      let hourlyForecastUrl = `${apiPrefix}/hourly/q/${id}.json`;
+
+      this.getHourlyForecastData(hourlyForecastUrl);
+    },
+
     getElapsedMinutes(epochNow, epochBefore) {
       let elapsedSeconds = epochNow - epochBefore;
 
@@ -190,7 +196,7 @@ export default {
 
       this.icon = weatherIconMap[data.icon_url];
 
-      console.debug('weatherIconMap[data.icon]', weatherIconMap[data.icon]);
+      // console.debug('weatherIconMap[data.icon]', weatherIconMap[data.icon]);
 
       this.wx = {
         id: id,
@@ -257,6 +263,63 @@ export default {
       return localStorage.getItem(id);
     },
 
+    getHourlyForecastData(url) {
+      console.debug('getHourlyForecastData', url);
+
+      let hourlyUrl = url;
+
+      axios.get(hourlyUrl).then((res) => {
+        let data = res.data.hourly_forecast;
+
+        let mappedData = _.map(data, (hourlyData) => {
+          // console.debug('value', hourlyData);
+
+          return {
+            epoch: hourlyData.FCTTIME.epoch,
+            temp: {
+              f: hourlyData.temp.english,
+              c: hourlyData.temp.metric
+            },
+            relativeHumidity: hourlyData.humidity
+          };
+        });
+
+        this.forecast.hourly = mappedData;
+        this.chartLabels = this.extractDates(this.forecast.hourly);
+
+        let temps = _.map(this.forecast.hourly, 'temp.f');
+        temps.length = 12;
+
+        this.chartDatasets = [
+          {
+            label: 'Temp',
+            fill: false,
+            data: temps,
+            borderColor: red,
+            pointRadius: 1.5,
+            pointHitRadius: 5,
+            pointBackgroundColor: red,
+            pointHoverBackgroundColor: red,
+            pointHoverBorderColor: red
+          }
+        ];
+
+        // console.debug('extractDates', this.extractDates(this.forecast.hourly));
+
+        let hourlyTimes = this.extractDates(this.forecast.hourly);
+
+        console.debug('this.chartDatasets', hourlyTimes.length);
+
+        hourlyTimes.length = 12;
+
+        this.setLabels(hourlyTimes);
+        this.setDatasets(this.chartDatasets);
+        this.renderChart(true);
+
+        // console.debug('Hourly data...', this.forecast.hourly);
+      });
+    },
+
     extractDates(arr) {
       return _.map(arr, (data, index) => {
         let date = moment.unix(data.epoch);
@@ -316,6 +379,8 @@ export default {
       display: false
     };
 
+    console.debug('Mounted --- geoCoordinates ', this.geoCoordinates);
+
     this.chartHourly = new Chart(this.canvasElement, {
       type: 'line',
       data: {
@@ -342,9 +407,9 @@ export default {
               padding: 0,
               mirror: false,
               maxRotation: 0,
-              fontSize: 10,
+              fontSize: 10.5,
               callback: function (value, index, values) {
-                console.debug('Tick...', index, values.length - 1);
+                // console.debug('Tick...', index, values.length - 1);
 
                 if (index === 0) {
                   return;
@@ -362,8 +427,6 @@ export default {
         }
       }
     });
-
-    this.renderChart(false);
   }
 }
 </script>
