@@ -1,21 +1,4 @@
 # wx-vue
 
-> A Vue.js project
+> A project built with Vue.js and Weather Underground API. Check current weather conditions along with a 12-hour forecast. Check out the [Weather Underground](https://www.wunderground.com/?apiref=a0fa16fd450326fa) site as well as the [developer API documentation](https://www.wunderground.com/weather/api/d/docs?apiref=a0fa16fd450326fa).
 
-## Build Setup
-
-``` bash
-# install dependencies
-npm install
-
-# serve with hot reload at localhost:8080
-npm run dev
-
-# build for production with minification
-npm run build
-
-# build for production and view the bundle analyzer report
-npm run build --report
-```
-
-For detailed explanation on how things work, checkout the [guide](http://vuejs-templates.github.io/webpack/) and [docs for vue-loader](http://vuejs.github.io/vue-loader).
