@@ -10,6 +10,7 @@ header {
     height: $header-height;
     z-index: 2;
     width: 100%;
+    max-height: 56px;
 }
 
 main {
@@ -32,16 +33,13 @@ footer {
     position: fixed;
     bottom: 0;
     height: $footer-height;
-    // z-index: 2;
-
-    // blah
     text-align: center;
     background: black;
     width: 100%;
+    max-height: 2rem;
 }
 
 .off-canvas {
     top: $header-height;
     height: $content-height + $footer-height;
-    // z-index: 0;
 }

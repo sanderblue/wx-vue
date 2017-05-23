@@ -1,13 +1,14 @@
 .mobile-menu-container {
     position: relative;
     color: white;
-    height: inherit;
+    height: 97%;
 }
 
 .mobile-menu-footer {
     position: absolute;
     bottom: 0;
     left: 0;
+    width: 100%;
 }
 
 .built-by,
@@ -22,5 +23,3 @@
         display: inline-block;
     }
 }
-
-.powered-by {}
