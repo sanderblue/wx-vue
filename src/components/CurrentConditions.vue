@@ -136,7 +136,6 @@ export default {
   watch: {
     locale: function () {
       console.debug('');
-      console.debug('');
       console.debug('LOCALE changed', this.locale);
 
       let id = `${this.locale}`;
@@ -209,7 +208,6 @@ export default {
     },
 
     setData(id, res) {
-      console.debug('Setting id...  ', id);
       console.debug('Setting res... ', res);
 
       let currentConditions = res.data.current_observation;

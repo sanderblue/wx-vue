@@ -1,0 +1,47 @@
+$viewport-height: 100vh;
+$header-height: 9vh;
+$content-height: 86vh;
+$footer-height: 5vh;
+
+header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: $header-height;
+    z-index: 2;
+    width: 100%;
+}
+
+main {
+    position: relative;
+    top: $header-height;
+    bottom: $footer-height;
+    height: $content-height;
+    z-index: 0;
+    padding-left: 0;
+    padding-right: 0;
+    overflow: hidden;
+
+    .main-content {
+        height: inherit;
+        overflow-y: scroll;
+    }
+}
+
+footer {
+    position: fixed;
+    bottom: 0;
+    height: $footer-height;
+    // z-index: 2;
+
+    // blah
+    text-align: center;
+    background: black;
+    width: 100%;
+}
+
+.off-canvas {
+    top: $header-height;
+    height: $content-height + $footer-height;
+    // z-index: 0;
+}

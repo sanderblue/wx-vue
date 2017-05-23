@@ -1,0 +1,26 @@
+.mobile-menu-container {
+    position: relative;
+    color: white;
+    height: inherit;
+}
+
+.mobile-menu-footer {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+
+.built-by,
+.powered-by {
+    text-align: center;
+    padding: 0.125rem 1rem;
+    font-size: 0.9375rem;
+
+    a,
+    span {
+        vertical-align: middle;
+        display: inline-block;
+    }
+}
+
+.powered-by {}

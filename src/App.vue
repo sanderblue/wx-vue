@@ -27,20 +27,37 @@
       </div>
     </header>
 
-    <div class="off-canvas position-right" id="wx-menu" data-off-canvas>
-      <ul class="menu vertical">
-        <li><a href="#">Radar</a></li>
-        <li><a href="#">History Data</a></li>
-      </ul>
-    </div>
-
-    <main class="row small-16 columns small-centered" role="main">
+    <main class="" role="main">
       <div class="main-content">
         <currentconditions :locale="locale"></currentconditions>
       </div>
     </main>
 
-    <footer></footer>
+    <footer>Test</footer>
+
+    <div class="off-canvas position-right" id="wx-menu" data-off-canvas>
+      <div class="mobile-menu-container">
+        <ul class="menu vertical">
+          <li><a href="#">Radar</a></li>
+          <li><a href="#">History Data</a></li>
+        </ul>
+        <div class="mobile-menu-footer">
+          <div class="built-by">
+            <span>Built by</span>
+            <a href="http://www.sanderblue.com" target="_blank">Sander Blue</a>
+          </div>
+          <div class="powered-by">
+            <div>
+              <span>Powered by</span>
+              <a v-bind:href="apiRefUrl" target="_blank">Wunderground</a>
+            </div>
+            <a v-bind:href="apiRefUrl" target="_blank">
+              <img src="./assets/images/wunderground/wundergroundLogo_horizontal_white_text_xsmall.png">
+            </a>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -73,7 +90,8 @@ export default {
       userLocation: '',
       locale: '',
       searchResults: [],
-      localStorageData: {} // just for testing
+      localStorageData: {}, // just for testing
+      apiRefId: 'a0fa16fd450326fa'
     };
   },
 
@@ -135,6 +153,10 @@ export default {
   computed: {
     hasItems() {
       return this.searchResults.length > 0;
+    },
+
+    apiRefUrl() {
+      return `https://www.wunderground.com/?apiref=${this.apiRefId}`;
     }
   },
 };
@@ -142,10 +164,4 @@ export default {
 
 <style lang="scss">
   @import './styles/app';
-
-  .main-content {
-    padding-top: 1rem;
-    padding-bottom: 1rem;
-  }
-
 </style>
