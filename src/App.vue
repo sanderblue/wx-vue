@@ -33,7 +33,7 @@
       </div>
     </main>
 
-    <footer>Test</footer>
+    <footer class=>Test</footer>
 
     <div class="off-canvas position-right" id="wx-menu" data-off-canvas>
       <div class="mobile-menu-container">
@@ -107,8 +107,6 @@ export default {
     onClickSearchResult(e) {
       let id = e.currentTarget.dataset.zmw;
 
-      console.debug('CLICK SEARCH RESULT', id);
-
       // Might be able to directly use the data attribute instead
       // of searching through the results.
       let result = _.find(this.searchResults, (item) => {
@@ -140,9 +138,9 @@ export default {
         param: 'cb',
       };
 
-      jsonp(aqUrl, jsonpOptions, function (err, data) {
+      jsonp(aqUrl, jsonpOptions, (err, data) => {
         this.searchResults = data.RESULTS;
-      }.bind(this));
+      });
     }, 150)
   },
 
