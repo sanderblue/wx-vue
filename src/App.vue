@@ -7,13 +7,11 @@
         <form class="header-form" v-on:submit.passive="">
           <div class="input-group">
             <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
-
             <div class="input-group-button">
               <button type="button" class="button" v-on:click.passive="onClickSubmit">
                 <i class="fa fa-search"></i>
               </button>
             </div>
-
             <ul v-show="hasItems" class="aq-results">
               <li v-for="item in searchResults">
                 <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-zmw="item.zmw"></div>
@@ -23,7 +21,8 @@
         </form>
       </div>
       <div class="small-4 text-right">
-        <button class="menu-icon" type="button" data-open="wx-menu"></button>
+        <button id="open-menu" class="menu-icon" type="button" data-open="wx-menu" v-on:click.passive="openMenu"></button>
+        <button id="close-menu" class="menu-icon hide" type="button" data-close="wx-menu" v-on:click.passive="closeMenu"></button>
       </div>
     </header>
 
@@ -33,9 +32,9 @@
       </div>
     </main>
 
-    <footer class=>Test</footer>
+    <footer>Test</footer>
 
-    <div class="off-canvas position-right" id="wx-menu" data-off-canvas>
+    <div class="off-canvas position-right" id="wx-menu" data-off-canvas data-auto-focus="false">
       <div class="mobile-menu-container">
         <ul class="menu vertical">
           <li><a href="#">Radar</a></li>
@@ -96,6 +95,16 @@ export default {
   },
 
   methods: {
+    openMenu() {
+      document.getElementById('open-menu').classList.add('hide');
+      document.getElementById('close-menu').classList.remove('hide');
+    },
+
+    closeMenu() {
+      document.getElementById('close-menu').classList.add('hide');
+      document.getElementById('open-menu').classList.remove('hide');
+    },
+
     onClickSubmit(e) {
       // e.preventDefault();
 

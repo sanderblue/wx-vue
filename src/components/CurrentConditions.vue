@@ -1,40 +1,46 @@
 <template>
   <div class="current-conditions">
-    <div class="row">
-      <div class="small-7 columns text-center">
-        <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
-        <div class="weather">{{ wx.weather }}</div>
-      </div>
-      <div class="small-9 columns">
-        <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
-        <div class="wx-row location-elevations">
-          <div class="station-elevation">
-            <strong>Elevation:</strong>
-            <span>{{ wx.station.elevation }}</span>
+    <div v-if="error" class="text-center">
+      <strong>{{ error.description }}</strong>
+    </div>
+
+    <div v-if="!error">
+      <div class="row">
+        <div class="small-7 columns text-center">
+          <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
+          <div class="weather">{{ wx.weather }}</div>
+        </div>
+        <div class="small-9 columns">
+          <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
+          <div class="wx-row location-elevations">
+            <div class="station-elevation">
+              <strong>Elevation:</strong>
+              <span>{{ wx.station.elevation }}</span>
+            </div>
+          </div>
+          <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
+          <div class="wx-row">
+            <span class="wx-label">Humidity:</span>
+            <span>{{ wx.relativeHumidity }}</span>
+          </div>
+          <div class="wx-row">
+            <span class="wx-label">Dewpoint:</span>
+            <span>{{ wx.dewpoint.f }}&deg;</span>
           </div>
         </div>
-        <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
-        <div class="wx-row">
-          <span class="wx-label">Humidity:</span>
-          <span>{{ wx.relativeHumidity }}</span>
-        </div>
-        <div class="wx-row">
-          <span class="wx-label">Dewpoint:</span>
-          <span>{{ wx.dewpoint.f }}&deg;</span>
+      </div>
+      <div class="row hourly-details">
+        <div class="small-16 columns">
+          <h4 class="text-center">12-hour Forecast</h4>
+          <div class="chart-container">
+            <canvas class="chart"></canvas>
+          </div>
         </div>
       </div>
-    </div>
-    <div class="row hourly-details">
-      <div class="small-16 columns">
-        <h4 class="text-center">12-hour Forecast</h4>
-        <div class="chart-container">
-          <canvas class="chart"></canvas>
-        </div>
+      <button class="button" v-on:click="clearLocalStorage">Clear Local Storage</button>
+      <div class="json">
+        <pre v-html="responseData"></pre>
       </div>
-    </div>
-    <button class="button" v-on:click="clearLocalStorage">Clear Local Storage</button>
-    <div class="json">
-      <pre v-html="responseData"></pre>
     </div>
   </div>
 </template>
@@ -79,6 +85,7 @@ export default {
         latitude: null,
         longitude: null
       },
+      error: null,
       wx: {
         station: {
           city: '',
@@ -210,6 +217,12 @@ export default {
     setData(id, res) {
       console.debug('Setting res... ', res);
 
+      if (res.data.response && res.data.response.error) {
+        return this.error = res.data.response.error;
+      }
+
+      this.error = null;
+
       let currentConditions = res.data.current_observation;
       let hrlyForecast = res.data.hourly_forecast;
 
@@ -296,6 +309,9 @@ export default {
       });
 
       this.forecast.hourly = mappedData;
+
+      console.debug('this.forecast.hourly:', this.forecast.hourly);
+
       this.chartLabels = this.extractDates(this.forecast.hourly);
 
       let temps = _.map(this.forecast.hourly, 'temp.f');

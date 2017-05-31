@@ -3,6 +3,10 @@ $header-height: 9vh;
 $content-height: 86vh;
 $footer-height: 5vh;
 
+$header-height-medium-up: 6vh;
+$content-height-medium-up: 91vh;
+$footer-height-medium-up: 3vh;
+
 header {
     position: fixed;
     top: 0;
@@ -10,7 +14,10 @@ header {
     height: $header-height;
     z-index: 2;
     width: 100%;
-    max-height: 56px;
+
+    @include breakpoint(medium) {
+        height: $header-height-medium-up;
+    }
 }
 
 main {
@@ -22,6 +29,12 @@ main {
     padding-left: 0;
     padding-right: 0;
     overflow: hidden;
+
+    @include breakpoint(medium) {
+        top: $header-height-medium-up;
+        bottom: $footer-height-medium-up;
+        height: $content-height-medium-up;
+    }
 
     .main-content {
         height: inherit;
@@ -36,10 +49,18 @@ footer {
     text-align: center;
     background: black;
     width: 100%;
-    max-height: 2rem;
+
+    @include breakpoint(medium) {
+        height: $footer-height-medium-up;
+    }
 }
 
 .off-canvas {
     top: $header-height;
     height: $content-height + $footer-height;
+
+    @include breakpoint(medium) {
+        top: $header-height-medium-up;
+        height: $content-height-medium-up + $footer-height-medium-up;
+    }
 }
