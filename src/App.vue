@@ -1,9 +1,8 @@
 <template>
   <div>
-
-    <header class="row header">
-      <div class="small-4 wx-title">WxVue</div>
-      <div class="small-8">
+    <header class="row expanded header">
+      <div class="small-4 large-6 wx-title">WxVue</div>
+      <div class="small-8 large-4">
         <form class="header-form" v-on:submit.passive="">
           <div class="input-group">
             <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
@@ -20,14 +19,14 @@
           </div>
         </form>
       </div>
-      <div class="small-4 text-right">
+      <div class="small-4 large-6 text-right">
         <button id="open-menu" class="menu-icon" type="button" data-open="wx-menu" v-on:click.passive="openMenu"></button>
         <button id="close-menu" class="menu-icon hide" type="button" data-close="wx-menu" v-on:click.passive="closeMenu"></button>
       </div>
     </header>
 
     <main class="" role="main">
-      <div class="main-content">
+      <div class="main-content large-8 small-centered">
         <currentconditions :locale="locale"></currentconditions>
       </div>
     </main>

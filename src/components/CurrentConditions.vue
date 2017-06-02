@@ -6,11 +6,11 @@
 
     <div v-if="!error">
       <div class="row">
-        <div class="small-7 columns text-center">
+        <div class="small-7 large-8 columns text-center">
           <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
           <div class="weather">{{ wx.weather }}</div>
         </div>
-        <div class="small-9 columns">
+        <div class="small-9 large-8 columns">
           <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
           <div class="wx-row location-elevations">
             <div class="station-elevation">
@@ -36,10 +36,6 @@
             <canvas class="chart"></canvas>
           </div>
         </div>
-      </div>
-      <button class="button" v-on:click="clearLocalStorage">Clear Local Storage</button>
-      <div class="json">
-        <pre v-html="responseData"></pre>
       </div>
     </div>
   </div>
