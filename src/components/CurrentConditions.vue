@@ -362,7 +362,7 @@ export default {
     },
 
     renderChart(update) {
-      // console.debug('Rendering chart...', this.chartHourly);
+      console.debug('Rendering chart...', this.chartHourly);
 
       if (update) {
         this.chartHourly.update();
