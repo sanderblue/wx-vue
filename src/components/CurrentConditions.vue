@@ -486,7 +486,7 @@ export default {
 }
 
 .city {
-  font-size: 1.625rem;
+  font-size: 1.5rem;
 }
 
 .temp {

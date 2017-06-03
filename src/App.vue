@@ -1,11 +1,11 @@
 <template>
   <div>
     <header class="row expanded header">
-      <div class="small-4 large-6 wx-title">WxVue</div>
-      <div class="small-8 large-4">
+      <div class="small-3 large-6 wx-title">WxVue</div>
+      <div class="small-10 large-4">
         <form class="header-form" v-on:submit.passive="">
           <div class="input-group">
-            <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip code">
+            <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip">
             <div class="input-group-button">
               <button type="button" class="button" v-on:click.passive="onClickSubmit">
                 <i class="fa fa-search"></i>
@@ -19,7 +19,7 @@
           </div>
         </form>
       </div>
-      <div class="small-4 large-6 text-right">
+      <div class="small-3 large-6 text-right">
         <button id="open-menu" class="menu-icon" type="button" data-open="wx-menu" v-on:click.passive="openMenu"></button>
         <button id="close-menu" class="menu-icon hide" type="button" data-close="wx-menu" v-on:click.passive="closeMenu"></button>
       </div>
@@ -109,7 +109,11 @@ export default {
 
       console.debug('SUBMIT', this.userLocation);
 
-      this.locale = this.userLocation;
+      this.userLocation = _.trim(this.userLocation);
+
+      if (this.userLocation !== '') {
+        this.locale = this.userLocation;
+      }
     },
 
     onClickSearchResult(e) {
@@ -127,7 +131,7 @@ export default {
 
       this.searchResults = [];
 
-      e.currentTarget.value = '';
+      this.userLocation = '';
     },
 
     onBlurSearch: _.debounce(function () {
