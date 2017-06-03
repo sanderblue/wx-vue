@@ -11,7 +11,7 @@ require('motion-ui/motion-ui');
 require('what-input');
 require('foundation-sites');
 
-Vue.config.productionTip = false;
+Vue.config.productionTip = true;
 
 /* eslint-disable no-new */
 new Vue({

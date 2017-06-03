@@ -49,8 +49,16 @@ import Chart from 'chart.js';
 import jsonp from 'jsonp';
 
 const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
-const red = 'rgba(254, 74, 73, 0.9)';
-const blue = 'rgba(42, 183, 202, 0.9)';
+
+const COLOR_PALETTE = {
+  red: 'rgba(254, 74, 73, 0.7)',
+  green: 'rgba(55, 175, 85, 0.5)',
+  blue: 'rgba(42, 183, 202, 0.6)',
+};
+
+// const red = 'rgba(254, 74, 73, 0.9)';
+// const green = 'rgba(254, 74, 73, 0.9)';
+// const blue = 'rgba(42, 183, 202, 0.9)';
 
 /**
  * Map of Wunderground API weather condition states to weather icon class names.
@@ -68,6 +76,8 @@ const weatherIconMap = {
   rain: 'wi-rain',
   tstorms: 'wi-thunderstorm'
 };
+
+// console.clear(); // JUST FOR DEBUGGING
 
 export default {
   name: 'chart',
@@ -201,11 +211,11 @@ export default {
         }
       }
 
-      console.debug('');
-      console.debug('----------------');
-      console.debug('this.WX', this.wx);
-      console.debug('----------------');
-      console.debug('');
+      // console.debug('');
+      // console.debug('----------------');
+      // console.debug('this.WX', this.wx);
+      // console.debug('----------------');
+      // console.debug('');
 
       this.responseData = this.wx;
     },
@@ -287,7 +297,7 @@ export default {
     },
 
     getData(id) {
-      console.debug('LocalStorage::getItem - ', id);
+      // console.debug('LocalStorage::getItem - ', id);
 
       return localStorage.getItem(id);
     },
@@ -306,25 +316,42 @@ export default {
 
       this.forecast.hourly = mappedData;
 
-      console.debug('this.forecast.hourly:', this.forecast.hourly);
+      // console.debug('wxData.forecast.hourly:', wxData.forecast.hourly);
+      // console.debug('this.forecast.hourly:  ', this.forecast.hourly);
 
       this.chartLabels = this.extractDates(this.forecast.hourly);
 
       let temps = _.map(this.forecast.hourly, 'temp.f');
       temps.length = 12;
 
+      let humidity = _.map(this.forecast.hourly, 'relativeHumidity');
+      humidity.length = 12;
+
       this.chartDatasets = [
         {
+          id: 'temp',
           label: 'Temp',
           fill: false,
           data: temps,
-          borderColor: red,
-          pointRadius: 1.5,
+          borderColor: COLOR_PALETTE.red,
+          pointRadius: 2,
           pointHitRadius: 5,
-          pointBackgroundColor: red,
-          pointHoverBackgroundColor: red,
-          pointHoverBorderColor: red
-        }
+          pointBackgroundColor: COLOR_PALETTE.red,
+          pointHoverBackgroundColor: COLOR_PALETTE.red,
+          pointHoverBorderColor: COLOR_PALETTE.red
+        },
+        {
+          id: 'humidity',
+          label: 'Humidity',
+          fill: false,
+          data: humidity,
+          borderColor: COLOR_PALETTE.green,
+          pointRadius: 2,
+          pointHitRadius: 5,
+          pointBackgroundColor: COLOR_PALETTE.green,
+          pointHoverBackgroundColor: COLOR_PALETTE.green,
+          pointHoverBorderColor: COLOR_PALETTE.green
+        },
       ];
 
       let hourlyTimes = this.extractDates(this.forecast.hourly);
@@ -354,19 +381,15 @@ export default {
     },
 
     setDatasets(datasets) {
-      console.debug('setDatasets - this.chartHourly', this.chartHourly);
-
       this.chartHourly.data.datasets = datasets;
     },
 
     setLabels(labels) {
-      console.debug('setLabels - this.chartHourly', this.chartHourly);
-
       this.chartHourly.data.labels = labels;
     },
 
     renderChart(update) {
-      console.debug('Rendering chart...', this.chartHourly);
+      // console.debug('Rendering chart...', this.chartHourly);
 
       if (update) {
         this.chartHourly.update();
@@ -395,13 +418,7 @@ export default {
   },
 
   mounted() {
-    console.debug('Mounted - Chart', Chart);
-
     this.canvasElement = this.$el.querySelector('canvas');
-
-    Chart.defaults.global.legend = {
-      display: false
-    };
 
     this.chartHourly = new Chart(this.canvasElement, {
       type: 'line',
@@ -410,6 +427,19 @@ export default {
         datasets: this.chartDatasets
       },
       options: {
+        tooltips: {
+          displayColors: false,
+          callbacks: {
+            title: function (tooltipItem, data) {
+              // console.debug('Tooltip data:', data);
+
+              return null;
+            }
+          }
+        },
+        legend: {
+          display: false
+        },
         responsive: true,
         maintainAspectRatio: false,
         scales: {
@@ -417,7 +447,6 @@ export default {
             ticks: {
               beginAtZero: true,
               padding: 5,
-              // mirror: true
             },
             gridLines: {
               drawTicks: false
@@ -425,14 +454,11 @@ export default {
           }],
           xAxes: [{
             ticks: {
-              // labelOffset: 10,
               padding: 0,
               mirror: false,
               maxRotation: 0,
               fontSize: 10.5,
               callback: function (value, index, values) {
-                // console.debug('Tick...', index, values.length - 1);
-
                 if (index === 0) {
                   return;
                 }
@@ -454,11 +480,6 @@ export default {
 </script>
 
 <style scoped>
-.current-conditions {
-  padding-top: 1rem;
-  line-height: 1;
-}
-
 .weather {
   padding-top: 0.75rem;
   padding-bottom: 0.75rem;
@@ -487,7 +508,7 @@ export default {
 
 .chart-container {
   height: 20vh;
-  max-height: 120px;
+  max-height: 160px;
   width: 90vw;
   margin-bottom: 3rem;
 
