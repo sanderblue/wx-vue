@@ -354,10 +354,14 @@ export default {
     },
 
     setDatasets(datasets) {
+      console.debug('setDatasets - this.chartHourly', this.chartHourly);
+
       this.chartHourly.data.datasets = datasets;
     },
 
     setLabels(labels) {
+      console.debug('setLabels - this.chartHourly', this.chartHourly);
+
       this.chartHourly.data.labels = labels;
     },
 
@@ -391,6 +395,8 @@ export default {
   },
 
   mounted() {
+    console.debug('Mounted - Chart', Chart);
+
     this.canvasElement = this.$el.querySelector('canvas');
 
     Chart.defaults.global.legend = {
