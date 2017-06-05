@@ -36,8 +36,8 @@
     <div class="off-canvas position-right" id="wx-menu" data-off-canvas data-auto-focus="false">
       <div class="mobile-menu-container">
         <ul class="menu vertical">
-          <li><a href="#">Radar</a></li>
-          <li><a href="#">History Data</a></li>
+          <!-- <li><a href="#">Radar</a></li> -->
+          <!-- <li><a href="#">History Data</a></li> -->
         </ul>
         <div class="mobile-menu-footer">
           <div class="built-by">
