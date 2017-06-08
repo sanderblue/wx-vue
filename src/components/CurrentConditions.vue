@@ -48,7 +48,7 @@ import moment from 'moment';
 import Chart from 'chart.js';
 import jsonp from 'jsonp';
 
-const apiPrefix = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
+const API_PREFIX = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
 
 const COLOR_PALETTE = {
   red: 'rgba(254, 74, 73, 0.7)',
@@ -56,16 +56,12 @@ const COLOR_PALETTE = {
   blue: 'rgba(42, 183, 202, 0.6)',
 };
 
-// const red = 'rgba(254, 74, 73, 0.9)';
-// const green = 'rgba(254, 74, 73, 0.9)';
-// const blue = 'rgba(42, 183, 202, 0.9)';
-
 /**
  * Map of Wunderground API weather condition states to weather icon class names.
  *
  * Icons: https://erikflowers.github.io/weather-icons
  */
-const weatherIconMap = {
+const WEATHER_ICON_MAP = {
   clear: 'wi-day-sunny',
   partlycloudy: 'wi-day-cloudy',
   mostlycloudy: 'wi-cloudy',
@@ -152,7 +148,7 @@ export default {
       console.debug('LOCALE changed', this.locale);
 
       let id = `${this.locale}`;
-      let apiUrl = `${apiPrefix}/conditions/q/${this.locale}.json`;
+      let apiUrl = `${API_PREFIX}/conditions/q/${this.locale}.json`;
       let wxData = this.getData(id);
 
       this.updateUI(id);
@@ -176,7 +172,7 @@ export default {
 
     updateUI(locale) {
       let id = `${locale}`;
-      let apiEndpoint = `${apiPrefix}/conditions/hourly/q/${id}.json`;
+      let apiEndpoint = `${API_PREFIX}/conditions/hourly/q/${id}.json`;
       let wxData = this.getData(id);
 
       if (!wxData) {
@@ -232,7 +228,7 @@ export default {
       let currentConditions = res.data.current_observation;
       let hrlyForecast = res.data.hourly_forecast;
 
-      this.icon = weatherIconMap[currentConditions.icon_url];
+      this.icon = WEATHER_ICON_MAP[currentConditions.icon_url];
 
       this.wx = {
         id: id,
@@ -281,7 +277,7 @@ export default {
         },
         uv: currentConditions.uv,
         icon: currentConditions.icon,
-        wxIcon: weatherIconMap[currentConditions.icon],
+        wxIcon: WEATHER_ICON_MAP[currentConditions.icon],
         forecast: {
           hourly: hrlyForecast
         }

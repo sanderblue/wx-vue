@@ -59,7 +59,6 @@
   </div>
 </template>
 
-
 <script>
 import _ from 'lodash';
 import jsonp from 'jsonp';
@@ -70,7 +69,7 @@ import CurrentConditions from './components/CurrentConditions';
  *
  * @type {String}
  */
-const autoCompleteApiPrefix = 'http://autocomplete.wunderground.com/aq?h=0&query=';
+const AUTOCOMPLETE_API_PREFIX = 'http://autocomplete.wunderground.com/aq?h=0&query=';
 
 /**
  * App Component
@@ -88,9 +87,18 @@ export default {
       userLocation: '',
       locale: '',
       searchResults: [],
-      localStorageData: {}, // just for testing
       apiRefId: 'a0fa16fd450326fa'
     };
+  },
+
+  computed: {
+    hasItems() {
+      return this.searchResults.length > 0;
+    },
+
+    apiRefUrl() {
+      return `https://www.wunderground.com/?apiref=${this.apiRefId}`;
+    }
   },
 
   methods: {
@@ -119,7 +127,7 @@ export default {
     onClickSearchResult(e) {
       let id = e.currentTarget.dataset.zmw;
 
-      // Might be able to directly use the data attribute instead
+      // Should be able to directly use the data attribute instead
       // of searching through the results.
       let result = _.find(this.searchResults, (item) => {
         return item.zmw == id;
@@ -145,7 +153,7 @@ export default {
       }
 
       let queryEncoded = encodeURIComponent(e.target.value);
-      let aqUrl = `${autoCompleteApiPrefix}${queryEncoded}`;
+      let aqUrl = `${AUTOCOMPLETE_API_PREFIX}${queryEncoded}`;
       let jsonpOptions = {
         param: 'cb',
       };
@@ -158,17 +166,7 @@ export default {
 
   mounted() {
     $(document).foundation();
-  },
-
-  computed: {
-    hasItems() {
-      return this.searchResults.length > 0;
-    },
-
-    apiRefUrl() {
-      return `https://www.wunderground.com/?apiref=${this.apiRefId}`;
-    }
-  },
+  }
 };
 </script>
 
