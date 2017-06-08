@@ -152,6 +152,7 @@ export default {
       let wxData = this.getData(id);
 
       this.updateUI(id);
+      this.sendGoogleAnalyticsEvent('update', this.locale);
     },
 
     geoCoordinates(value) {
@@ -293,8 +294,6 @@ export default {
     },
 
     getData(id) {
-      // console.debug('LocalStorage::getItem - ', id);
-
       return localStorage.getItem(id);
     },
 
@@ -311,10 +310,6 @@ export default {
       });
 
       this.forecast.hourly = mappedData;
-
-      // console.debug('wxData.forecast.hourly:', wxData.forecast.hourly);
-      // console.debug('this.forecast.hourly:  ', this.forecast.hourly);
-
       this.chartLabels = this.extractDates(this.forecast.hourly);
 
       let temps = _.map(this.forecast.hourly, 'temp.f');
@@ -385,8 +380,6 @@ export default {
     },
 
     renderChart(update) {
-      // console.debug('Rendering chart...', this.chartHourly);
-
       if (update) {
         this.chartHourly.update();
       } else {
@@ -396,6 +389,15 @@ export default {
 
     clearLocalStorage() {
       localStorage.clear();
+    },
+
+    sendGoogleAnalyticsEvent(action, value) {
+      action = action || 'update';
+      value = typeof value === 'string' ? value.toLowerCase() : value;
+
+      ga('send', 'event', 'current conditions', action, value, {
+        nonInteraction: false
+      });
     }
   },
 
@@ -403,8 +405,6 @@ export default {
     let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
     axios.get(geoLocationApiUrl).then((res) => {
-      // console.debug('Location API Response...', res.data);
-
       this.geoCoordinates = res.data;
     });
   },

@@ -113,15 +113,17 @@ export default {
     },
 
     onClickSubmit(e) {
-      // e.preventDefault();
-
-      console.debug('SUBMIT', this.userLocation);
-
       this.userLocation = _.trim(this.userLocation);
 
       if (this.userLocation !== '') {
         this.locale = this.userLocation;
       }
+
+      let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
+
+      ga('send', 'event', 'search', 'submit', gaValue, {
+        nonInteraction: false
+      });
     },
 
     onClickSearchResult(e) {
@@ -140,6 +142,12 @@ export default {
       this.searchResults = [];
 
       this.userLocation = '';
+
+      let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
+
+      ga('send', 'event', 'search', 'click autocomplete', gaValue, {
+        nonInteraction: false
+      });
     },
 
     onBlurSearch: _.debounce(function () {
