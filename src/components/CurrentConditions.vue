@@ -152,7 +152,7 @@ export default {
       let wxData = this.getData(id);
 
       this.updateUI(id);
-      this.sendGoogleAnalyticsEvent('update', this.locale);
+      this.sendGoogleAnalyticsEvent('locale', this.locale);
     },
 
     geoCoordinates(value) {

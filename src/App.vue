@@ -3,11 +3,11 @@
     <header class="row expanded header">
       <div class="small-3 large-6 wx-title">WxVue</div>
       <div class="small-10 large-4">
-        <form class="header-form" v-on:submit.passive="">
+        <form class="header-form" v-on:submit="onSubmitSearch">
           <div class="input-group">
             <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip">
             <div class="input-group-button">
-              <button type="button" class="button" v-on:click.passive="onClickSubmit">
+              <button type="button" class="button" v-on:click="onClickSubmit">
                 <i class="fa fa-search"></i>
               </button>
             </div>
@@ -112,7 +112,29 @@ export default {
       document.getElementById('open-menu').classList.remove('hide');
     },
 
+    onSubmitSearch(e) {
+      e.preventDefault();
+
+      this.userLocation = _.trim(this.userLocation);
+
+      if (this.userLocation !== '') {
+        this.locale = this.userLocation;
+      }
+
+      this.searchResults = [];
+
+      this.userLocation = '';
+
+      let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
+
+      ga('send', 'event', 'search', 'submit', gaValue, {
+        nonInteraction: false
+      });
+    },
+
     onClickSubmit(e) {
+      e.preventDefault();
+
       this.userLocation = _.trim(this.userLocation);
 
       if (this.userLocation !== '') {
