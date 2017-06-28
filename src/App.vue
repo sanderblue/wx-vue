@@ -157,8 +157,6 @@ export default {
         return item.zmw == id;
       });
 
-      console.debug('Result', result);
-
       this.locale = result.zmw;
 
       this.searchResults = [];

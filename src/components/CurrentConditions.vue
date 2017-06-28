@@ -35,6 +35,18 @@
           <div class="chart-container">
             <canvas class="chart"></canvas>
           </div>
+          <div class="chart-legend clearfix">
+            <div class="float-right">
+              <div class="legend-item">
+                <div class="legend-line legend-temp"></div>
+                <div class="legend-key">Temperature</div>
+              </div>
+              <div class="legend-item">
+                <div class="legend-line legend-humidity"></div>
+                <div class="legend-key">Humidity</div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -83,6 +95,18 @@ export default {
 
   data() {
     return {
+      chartLegendStyles: {
+        temp: {
+          borderBottomWidth: '1px',
+          borderBottomStyle: 'solid',
+          borderBottomColor: COLOR_PALETTE.red,
+        },
+        humidity: {
+          borderBottomWidth: '1px',
+          borderBottomStyle: 'solid',
+          borderBottomColor: COLOR_PALETTE.green,
+        }
+      },
       geoCoordinates: {
         latitude: null,
         longitude: null
@@ -144,9 +168,6 @@ export default {
 
   watch: {
     locale: function () {
-      console.debug('');
-      console.debug('LOCALE changed', this.locale);
-
       let id = `${this.locale}`;
       let apiUrl = `${API_PREFIX}/conditions/q/${this.locale}.json`;
       let wxData = this.getData(id);
@@ -427,8 +448,6 @@ export default {
           displayColors: false,
           callbacks: {
             title: function (tooltipItem, data) {
-              // console.debug('Tooltip data:', data);
-
               return null;
             }
           }
@@ -506,11 +525,40 @@ export default {
   height: 20vh;
   max-height: 160px;
   width: 90vw;
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
 
   canvas {
     height: inherit;
     width: inherit;
   }
+}
+
+.chart-legend {
+  display: block;
+}
+
+.legend-item {
+  display: block;
+}
+
+.legend-line {
+  height: 2px;
+  width: 2rem;
+  border-bottom-width: 2px;
+  border-bottom-style: solid;
+}
+
+.legend-temp {
+  border-bottom-color: rgba(254, 74, 73, 0.7);
+}
+
+.legend-humidity {
+  border-bottom-color: rgba(55, 175, 85, 0.5);
+}
+
+.legend-line,
+.legend-key {
+  display: inline-block;
+  vertical-align: middle;
 }
 </style>
