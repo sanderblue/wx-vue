@@ -107,10 +107,7 @@ export default {
           borderBottomColor: COLOR_PALETTE.green,
         }
       },
-      geoCoordinates: {
-        latitude: null,
-        longitude: null
-      },
+      geoCoordinates: {},
       error: null,
       wx: {
         station: {
@@ -169,15 +166,13 @@ export default {
   watch: {
     locale: function () {
       let id = `${this.locale}`;
-      let apiUrl = `${API_PREFIX}/conditions/q/${this.locale}.json`;
-      let wxData = this.getData(id);
 
       this.updateUI(id);
       this.sendGoogleAnalyticsEvent('locale', this.locale);
     },
 
-    geoCoordinates(value) {
-      this.updateUI(value.zip_code);
+    geoCoordinates(data) {
+      this.updateUI(`/q/${data.zip_code}`);
     }
   },
 
@@ -194,15 +189,13 @@ export default {
 
     updateUI(locale) {
       let id = `${locale}`;
-      let apiEndpoint = `${API_PREFIX}/conditions/hourly/q/${id}.json`;
+      let apiEndpoint = `${API_PREFIX}/conditions/hourly${id}.json`;
       let wxData = this.getData(id);
 
       if (!wxData) {
         this.getWxData(apiEndpoint)
           .then(this.setData.bind(this, id))
           .then(() => {
-            console.debug('No data to start, but data has been fetched and set now!');
-
             this.getHourlyForecastData(this.wx);
           });
 
@@ -213,8 +206,6 @@ export default {
 
         // Only get new weather data every 10 minutes
         if (elapsedMinutes >= 10) {
-          console.debug('Fetching new weather data...');
-
           this.getWxData(apiEndpoint)
             .then(this.setData.bind(this, id))
             .then(() => {

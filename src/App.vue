@@ -13,7 +13,8 @@
             </div>
             <ul v-show="hasItems" class="aq-results">
               <li v-for="item in searchResults">
-                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-zmw="item.zmw"></div>
+                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-q="item.l">
+                </div>
               </li>
             </ul>
           </div>
@@ -117,6 +118,8 @@ export default {
 
       this.userLocation = _.trim(this.userLocation);
 
+      console.log('Search Submit:', this.userLocation);
+
       if (this.userLocation !== '') {
         this.locale = this.userLocation;
       }
@@ -149,18 +152,8 @@ export default {
     },
 
     onClickSearchResult(e) {
-      let id = e.currentTarget.dataset.zmw;
-
-      // Should be able to directly use the data attribute instead
-      // of searching through the results.
-      let result = _.find(this.searchResults, (item) => {
-        return item.zmw == id;
-      });
-
-      this.locale = result.zmw;
-
+      this.locale = e.currentTarget.dataset.q; // Using the Wunderground prebuilt query path `/q/${result}``
       this.searchResults = [];
-
       this.userLocation = '';
 
       let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
