@@ -5,13 +5,16 @@
     </div>
 
     <div v-if="!error">
+      <!-- <div class="row">
+        <div class="wx-row city">{{ wx.location.full }}</div>
+      </div> -->
       <div class="row">
-        <div class="small-7 large-8 columns text-center">
+        <div class="small-6 large-8 columns text-center">
           <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
           <div class="weather">{{ wx.weather }}</div>
         </div>
-        <div class="small-9 large-8 columns">
-          <div class="wx-row city">{{ wx.location.city }}, {{ wx.location.state }}</div>
+        <div class="small-10 large-8 columns">
+          <div class="wx-row city">{{ wx.location.full }}</div>
           <div class="wx-row location-elevations">
             <div class="station-elevation">
               <strong>Elevation:</strong>
@@ -124,7 +127,7 @@ export default {
           state: '',
           country: '',
           elevation: '',
-          fullName: '',
+          full: '',
           latitude: '',
           longitude: '',
           zip: '',
@@ -230,7 +233,7 @@ export default {
     },
 
     setData(id, res) {
-      console.debug('Setting res... ', res);
+      console.log('Setting res... ', res);
 
       if (res.data.response && res.data.response.error) {
         return this.error = res.data.response.error;
@@ -260,7 +263,7 @@ export default {
           state: currentConditions.display_location.state,
           country: currentConditions.display_location.country,
           elevation: currentConditions.display_location.elevation,
-          fullName: currentConditions.display_location.full,
+          full: currentConditions.display_location.full,
           latitude: currentConditions.display_location.latitude,
           longitude: currentConditions.display_location.longitude,
           zip: currentConditions.display_location.zip,
