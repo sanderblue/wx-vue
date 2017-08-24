@@ -1,3 +1,7 @@
 .input-group {
     margin-bottom: 0;
 }
+
+input {
+  @include placeholder(#888);
+}
