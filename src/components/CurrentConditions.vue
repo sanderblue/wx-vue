@@ -111,7 +111,19 @@ export default {
           borderBottomColor: COLOR_PALETTE.green,
         }
       },
-      geoCoordinates: {},
+      geoCoordinates: {
+        ip: null,
+        country_code: 'US',
+        country_name: 'United States',
+        region_code: 'OR',
+        region_name: 'Oregon',
+        city: 'Portland',
+        zip_code: '97223',
+        time_zone: 'America/Los_Angeles',
+        latitude: 45.447,
+        longitude: -122.7668,
+        metro_code: 820
+      },
       error: null,
       wx: {
         station: {
@@ -170,6 +182,8 @@ export default {
   watch: {
     locale: function () {
       let id = `${this.locale}`;
+
+      console.debug('Locale:', this.locale);
 
       this.updateUI(id);
       this.sendGoogleAnalyticsEvent('locale', this.locale);
@@ -422,9 +436,50 @@ export default {
   beforeCreate() {
     let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
-    axios.get(geoLocationApiUrl).then((res) => {
-      this.geoCoordinates = res.data;
-    });
+    axios.get(geoLocationApiUrl)
+      .then((res) => {
+        console.debug('GeoIP response', res);
+
+        this.geoCoordinates = res.data;
+      })
+      .catch((error) => {
+        console.error('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
+
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log('\n\n\n');
+          console.log('error.response.data', error.response.data);
+          console.log('error.response.status', error.response.status);
+          console.log('error.response.headers', error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log('error.request', error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('error.message', error.message);
+        }
+
+        console.log('error.config:', error.config);
+        console.log('\n\n\n');
+
+        this.geoCoordinates = {
+          ip: '127.0.0.1',
+          country_code: 'US',
+          country_name: 'United States',
+          region_code: 'OR',
+          region_name: 'Oregon',
+          city: 'Portland',
+          zip_code: '97223',
+          time_zone: 'America/Los_Angeles',
+          latitude: 45.447,
+          longitude: -122.7668,
+          metro_code: 820
+        };
+      })
+    ;
   },
 
   created: function () {
