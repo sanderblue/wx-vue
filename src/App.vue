@@ -1,8 +1,8 @@
 <template>
   <div>
     <header class="row expanded header">
-      <div class="small-3 large-5 wx-title">WxVue</div>
-      <div class="small-11 large-6">
+      <div class="small-2 large-5 wx-title">WxVue</div>
+      <div class="small-12 large-6">
         <form class="header-form" v-on:submit="onSubmitSearch">
           <div class="input-group">
             <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip">
@@ -152,7 +152,8 @@ export default {
     },
 
     onClickSearchResult(e) {
-      this.locale = e.currentTarget.dataset.q; // Using the Wunderground prebuilt query path `/q/${result}``
+      // Using the Wunderground prebuilt query path `/q/${result}`
+      this.locale = e.currentTarget.dataset.q;
       this.searchResults = [];
       this.userLocation = '';
 

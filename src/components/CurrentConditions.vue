@@ -5,9 +5,6 @@
     </div>
 
     <div v-if="!error">
-      <!-- <div class="row">
-        <div class="wx-row city">{{ wx.location.full }}</div>
-      </div> -->
       <div class="row">
         <div class="small-6 large-8 columns text-center">
           <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>

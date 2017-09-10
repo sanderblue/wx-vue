@@ -2,10 +2,15 @@
     // height: 3rem;
     display: table;
     width: 100%;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
     background-color: rgba(20, 20, 20, 0.8);
     color: $white;
+
+    @include breakpoint(medium) {
+      padding-left: 1rem;
+      padding-right: 1rem;
+    }
 
     > div {
         display: table-cell;
@@ -25,8 +30,8 @@
 
 .header-form {
     position: relative;
-    margin-left: 0.75rem;
-    margin-right: 0.75rem;
+    margin-left: 0.5rem;
+    margin-right: 0.5rem;
 
     .input-group-field {
         border-right: none;
@@ -69,9 +74,15 @@
     li {
         padding-left: 0.5rem;
         padding-right: 0.5rem;
-        line-height: 2.3;
+        padding-top: 0.375rem;
+        padding-bottom: 0.375rem;
+        line-height: 1.8;
         cursor: pointer;
-        font-size: 0.8125rem;
+        font-size: 0.75rem;
+
+        @include breakpoint(medium) {
+            font-size: 0.8125rem;
+        }
 
         &:hover {
             background-color: darken(#e2e2e2, 8%);
