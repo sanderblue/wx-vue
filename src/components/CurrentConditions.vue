@@ -63,6 +63,7 @@ import moment from 'moment';
 import Chart from 'chart.js';
 import jsonp from 'jsonp';
 import ChartPlugins from '../modules/chart-plugins.js';
+import ApiHelper from '../modules/api-helper.js';
 
 const API_PREFIX = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
 
@@ -89,7 +90,7 @@ const WEATHER_ICON_MAP = {
   tstorms: 'wi-thunderstorm'
 };
 
-// console.clear(); // JUST FOR DEBUGGING
+console.clear(); // JUST FOR DEBUGGING
 
 export default {
   name: 'chart',
@@ -179,18 +180,151 @@ export default {
     }
   },
 
-  watch: {
-    locale: function () {
-      let id = `${this.locale}`;
+  beforeCreate() {
+    let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
+    axios.get(geoLocationApiUrl)
+      .then((res) => {
+        if (ApiHelper.isSafeResponseForUriCreation(res)) {
+          this.geoCoordinates = res.data;
+        } else {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                this.geoCoordinates = position.coords;
+              },
+              (error) => {
+                console.warn(error.message);
+              }
+            );
+          }
+        }
+      })
+      .catch((error) => {
+        console.warn('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
+
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log('\n\n\n');
+          console.log('error.response.data', error.response.data);
+          console.log('error.response.status', error.response.status);
+          console.log('error.response.headers', error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log('error.request', error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('error.message', error.message);
+        }
+
+        console.log('error.config:', error.config);
+        console.log('\n\n\n');
+
+        this.geoCoordinates = {
+          ip: '127.0.0.1',
+          country_code: 'US',
+          country_name: 'United States',
+          region_code: 'OR',
+          region_name: 'Oregon',
+          city: 'Portland',
+          zip_code: '97223',
+          time_zone: 'America/Los_Angeles',
+          latitude: 45.447,
+          longitude: -122.7668,
+          metro_code: 820
+        };
+      })
+    ;
+  },
+
+  created() {
+    // console.debug('created...');
+  },
+
+  mounted() {
+    this.canvasElement = this.$el.querySelector('canvas');
+
+    this.chartHourly = new Chart(this.canvasElement, {
+      type: 'line',
+      data: {
+        labels: this.chartLabels,
+        datasets: this.chartDatasets
+      },
+      options: {
+        showAllTooltips: true,
+        tooltips: {
+          displayColors: false,
+          callbacks: {
+            title: function (tooltipItem, data) {
+              return null;
+            },
+
+            label: function (tooltipItem, data) {
+              return tooltipItem.yLabel;
+            },
+          },
+          backgroundColor: 'rgba(0,0,0,0)',
+          bodyFontSize: 10,
+          bodyFontColor: 'rgba(0,0,0, 0.6)',
+          bodySpacing: 0,
+        },
+        legend: {
+          display: false
+        },
+        responsive: true,
+        maintainAspectRatio: false,
+        scales: {
+          yAxes: [{
+            ticks: {
+              beginAtZero: true,
+              padding: 5,
+            },
+            gridLines: {
+              drawTicks: false
+            }
+          }],
+          xAxes: [{
+            ticks: {
+              padding: 0,
+              mirror: false,
+              maxRotation: 0,
+              fontSize: 10.5,
+              callback: function (value, index, values) {
+                if (index === 0) {
+                  return;
+                }
+
+                if (index % 2 === 0) {
+                  return value;
+                }
+              }
+            },
+            gridLines: {
+              drawTicks: false
+            }
+          }]
+        }
+      }
+    });
+  },
+
+  watch: {
+    locale() {
       console.debug('Locale:', this.locale);
 
-      this.updateUI(id);
+      this.updateUI(`${this.locale}`);
       this.sendGoogleAnalyticsEvent('locale', this.locale);
     },
 
     geoCoordinates(data) {
-      this.updateUI(`/q/${data.zip_code}`);
+      console.log('geoCoordinates:', data);
+
+      let uriParam = data.zip_code ? ApiHelper.createZipCodeUriParam(data) : ApiHelper.createLatitudeLongitudeUriParam(data);
+
+      this.updateUI(`/q/${uriParam}`);
     }
   },
 
@@ -249,8 +383,6 @@ export default {
 
     setData(id, res) {
       console.log('Setting res... ', res);
-
-      console.log('JSON: ', JSON.stringify(res));
 
       if (res.data.response && res.data.response.error) {
         return this.error = res.data.response.error;
@@ -433,128 +565,8 @@ export default {
     }
   },
 
-  beforeCreate() {
-    let geoLocationApiUrl = 'http://freegeoip.net/json/';
-
-    axios.get(geoLocationApiUrl)
-      .then((res) => {
-        console.debug('GeoIP response', res);
-
-        this.geoCoordinates = res.data;
-      })
-      .catch((error) => {
-        console.error('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
-
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.log('\n\n\n');
-          console.log('error.response.data', error.response.data);
-          console.log('error.response.status', error.response.status);
-          console.log('error.response.headers', error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.log('error.request', error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log('error.message', error.message);
-        }
-
-        console.log('error.config:', error.config);
-        console.log('\n\n\n');
-
-        this.geoCoordinates = {
-          ip: '127.0.0.1',
-          country_code: 'US',
-          country_name: 'United States',
-          region_code: 'OR',
-          region_name: 'Oregon',
-          city: 'Portland',
-          zip_code: '97223',
-          time_zone: 'America/Los_Angeles',
-          latitude: 45.447,
-          longitude: -122.7668,
-          metro_code: 820
-        };
-      })
-    ;
-  },
-
-  created: function () {
-    // console.debug('created...');
-  },
-
   initializeChartPlugins() {
     ChartPlugins.initializeCustomTooltips();
-  },
-
-  mounted() {
-    this.canvasElement = this.$el.querySelector('canvas');
-
-    this.chartHourly = new Chart(this.canvasElement, {
-      type: 'line',
-      data: {
-        labels: this.chartLabels,
-        datasets: this.chartDatasets
-      },
-      options: {
-        showAllTooltips: true,
-        tooltips: {
-          displayColors: false,
-          callbacks: {
-            title: function (tooltipItem, data) {
-              return null;
-            },
-
-            label: function (tooltipItem, data) {
-              return tooltipItem.yLabel;
-            },
-          },
-          backgroundColor: 'rgba(0,0,0,0)',
-          bodyFontSize: 10,
-          bodyFontColor: 'rgba(0,0,0, 0.6)',
-          bodySpacing: 0,
-        },
-        legend: {
-          display: false
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          yAxes: [{
-            ticks: {
-              beginAtZero: true,
-              padding: 5,
-            },
-            gridLines: {
-              drawTicks: false
-            }
-          }],
-          xAxes: [{
-            ticks: {
-              padding: 0,
-              mirror: false,
-              maxRotation: 0,
-              fontSize: 10.5,
-              callback: function (value, index, values) {
-                if (index === 0) {
-                  return;
-                }
-
-                if (index % 2 === 0) {
-                  return value;
-                }
-              }
-            },
-            gridLines: {
-              drawTicks: false
-            }
-          }]
-        }
-      }
-    });
   }
 }
 </script>
