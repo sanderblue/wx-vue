@@ -2,7 +2,7 @@
   <div>
     <header class="row expanded header">
       <div class="small-3 large-5 wx-title">WxVue</div>
-      <div class="small-10 large-6">
+      <div class="small-11 large-6">
         <form class="header-form" v-on:submit="onSubmitSearch">
           <div class="input-group">
             <input v-on:keyup.passive="search" v-on:blur.passive="onBlurSearch" v-model="userLocation" class="input-group-field" type="text" placeholder="City, State or Zip">
@@ -20,7 +20,7 @@
           </div>
         </form>
       </div>
-      <div class="small-3 large-5 text-right">
+      <div class="small-2 large-5 text-right">
         <button id="open-menu" class="menu-icon" type="button" data-open="wx-menu" v-on:click.passive="openMenu"></button>
         <button id="close-menu" class="menu-icon hide" type="button" data-close="wx-menu" v-on:click.passive="closeMenu"></button>
       </div>
