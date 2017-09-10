@@ -59,8 +59,8 @@ import _ from 'lodash';
 import moment from 'moment';
 import Chart from 'chart.js';
 import jsonp from 'jsonp';
-import ChartPlugins from '../modules/chart-plugins.js';
-import ApiHelper from '../modules/api-helper.js';
+import ChartPlugins from '../modules/chart-plugins';
+import ApiHelper from '../modules/api-helper';
 
 const API_PREFIX = 'http://api.wunderground.com/api/1e0a7bd45ab35633';
 
@@ -368,12 +368,6 @@ export default {
           this.getHourlyForecastData(this.wx);
         }
       }
-
-      // console.debug('');
-      // console.debug('----------------');
-      // console.debug('this.WX', this.wx);
-      // console.debug('----------------');
-      // console.debug('');
 
       this.responseData = this.wx;
     },
