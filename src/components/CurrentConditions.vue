@@ -18,12 +18,10 @@
             <span>{{ wx.temp.f }}</span>
             <i class="fa fa-circle-o degree-symbol float-right" aria-hidden="true"></i>
           </div>
-          <div class="row">
-            <div class="small-8 columns collapse-right text-right">
+          <div class="row forecast-high-low">
+            <div class="small-16 columns text-right">
               <i class="fa fa-caret-down" aria-hidden="true"></i>
               <span>{{ wx.forecastToday.temp.low.f }}&deg;</span>
-            </div>
-            <div class="small-8 columns">
               <i class="fa fa-caret-up" aria-hidden="true"></i>
               <span>{{ wx.forecastToday.temp.high.f }}&deg;</span>
             </div>
