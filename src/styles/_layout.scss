@@ -64,3 +64,13 @@ footer {
         height: $content-height-medium-up + $footer-height-medium-up;
     }
 }
+
+.columns {
+    &.collapse-left {
+        padding-left: 0;
+    }
+
+    &.collapse-right {
+        padding-right: 0;
+    }
+}
