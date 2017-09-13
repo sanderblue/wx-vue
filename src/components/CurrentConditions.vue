@@ -3,13 +3,12 @@
     <div v-if="error" class="text-center">
       <strong>{{ error.description }}</strong>
     </div>
-
     <div v-if="!error">
       <div class="row weather-condition">
         <div class="small-16 columns text-center">
           <h3>{{ wx.location.full }}</h3>
           <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
-          <div class="weather">{{ wx.weather }}</div>
+          <div class="weather-text">{{ wx.weather }}</div>
         </div>
       </div>
       <div class="row weather-details">
@@ -21,9 +20,9 @@
           <div class="row forecast-high-low">
             <div class="small-16 columns text-right">
               <i class="fa fa-caret-down" aria-hidden="true"></i>
-              <span>{{ wx.forecastToday.temp.low.f }}&deg;</span>
+              <span class="low-temp">{{ wx.forecastToday.temp.low.f }}&deg;</span>
               <i class="fa fa-caret-up" aria-hidden="true"></i>
-              <span>{{ wx.forecastToday.temp.high.f }}&deg;</span>
+              <span class="high-temp">{{ wx.forecastToday.temp.high.f }}&deg;</span>
             </div>
           </div>
         </div>
@@ -354,8 +353,6 @@ export default {
 
   methods: {
     getWxData(url) {
-      console.debug('getWxData URL:', url);
-
       return axios.get(url);
     },
 
@@ -381,8 +378,6 @@ export default {
         let savedWxData = JSON.parse(wxData);
         let epochNow = moment().unix();
         let elapsedMinutes = this.getElapsedMinutes(epochNow, savedWxData.checkedAt.epoch);
-
-        console.debug('savedWxData', savedWxData);
 
         // Only get new weather data every 10 minutes
         if (elapsedMinutes >= 10) {
@@ -619,9 +614,10 @@ export default {
 </script>
 
 <style scoped>
-.weather {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+.weather-text {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 1.25rem;
 }
 
 .city {
@@ -629,7 +625,7 @@ export default {
 }
 
 .temp {
-  font-size: 3.125rem;
+  font-size: 3.5rem;
   font-weight: 600;
 }
 

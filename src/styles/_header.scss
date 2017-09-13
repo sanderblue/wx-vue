@@ -1,11 +1,13 @@
+$dark-linear-gradient: linear-gradient(rgba(30, 30, 30, 1), rgba(30, 30, 30, 0.3));
+
 .header {
-    // height: 3rem;
     display: table;
     width: 100%;
     padding-left: 0.75rem;
     padding-right: 0.75rem;
-    background-color: rgba(20, 20, 20, 0.8);
     color: $white;
+    background-color: rgba(30, 30, 30, 0.75); // default/fallback
+    background-image: $dark-linear-gradient; // if browser supports it
 
     @include breakpoint(medium) {
       padding-left: 1rem;
