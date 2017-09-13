@@ -47,8 +47,7 @@ footer {
     bottom: 0;
     height: $footer-height;
     text-align: center;
-    background: black;
-    width: 100%;
+    color: $white;
 
     @include breakpoint(medium) {
         height: $footer-height-medium-up;
@@ -62,5 +61,15 @@ footer {
     @include breakpoint(medium) {
         top: $header-height-medium-up;
         height: $content-height-medium-up + $footer-height-medium-up;
+    }
+}
+
+.columns {
+    &.collapse-left {
+        padding-left: 0;
+    }
+
+    &.collapse-right {
+        padding-right: 0;
     }
 }

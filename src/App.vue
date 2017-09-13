@@ -32,7 +32,13 @@
       </div>
     </main>
 
-    <footer>Test</footer>
+    <footer>
+      <div class="row">
+        <div class="small-16 columns text-center copyright-text">
+          <span>&copy;</span><span>{{ currentYear }} Sander Blue</span>
+        </div>
+      </div>
+    </footer>
 
     <div class="off-canvas position-right" id="wx-menu" data-off-canvas data-auto-focus="false">
       <div class="mobile-menu-container">
@@ -88,7 +94,8 @@ export default {
       userLocation: '',
       locale: '',
       searchResults: [],
-      apiRefId: 'a0fa16fd450326fa'
+      apiRefId: 'a0fa16fd450326fa',
+      currentYear: new Date().getFullYear()
     };
   },
 

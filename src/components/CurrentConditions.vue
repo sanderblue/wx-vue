@@ -3,22 +3,30 @@
     <div v-if="error" class="text-center">
       <strong>{{ error.description }}</strong>
     </div>
-
     <div v-if="!error">
-      <div class="row">
-        <div class="small-6 large-8 columns text-center">
+      <div class="row weather-condition">
+        <div class="small-16 columns text-center">
+          <h3>{{ wx.location.full }}</h3>
           <i class="wx-icon wi" v-bind:class="[wx.wxIcon]"></i>
-          <div class="weather">{{ wx.weather }}</div>
+          <div class="weather-text">{{ wx.weather }}</div>
         </div>
-        <div class="small-10 large-8 columns">
-          <div class="wx-row city">{{ wx.location.full }}</div>
-          <div class="wx-row location-elevations">
-            <div class="station-elevation">
-              <strong>Elevation:</strong>
-              <span>{{ wx.station.elevation }}</span>
+      </div>
+      <div class="row weather-details">
+        <div class="small-8 columns temp-container">
+          <div class="temp text-right clearfix">
+            <span>{{ wx.temp.f }}</span>
+            <i class="fa fa-circle-o degree-symbol float-right" aria-hidden="true"></i>
+          </div>
+          <div class="row forecast-high-low">
+            <div class="small-16 columns text-right">
+              <i class="fa fa-caret-down" aria-hidden="true"></i>
+              <span class="low-temp">{{ wx.forecastToday.temp.low.f }}&deg;</span>
+              <i class="fa fa-caret-up" aria-hidden="true"></i>
+              <span class="high-temp">{{ wx.forecastToday.temp.high.f }}&deg;</span>
             </div>
           </div>
-          <div class="wx-row temp">{{ wx.temp.f }}&deg;</div>
+        </div>
+        <div class="small-8 columns details-container">
           <div class="wx-row">
             <span class="wx-label">Humidity:</span>
             <span>{{ wx.relativeHumidity }}</span>
@@ -26,6 +34,10 @@
           <div class="wx-row">
             <span class="wx-label">Dewpoint:</span>
             <span>{{ wx.dewpoint.f }}&deg;</span>
+          </div>
+          <div class="wx-row">
+            <span class="wx-label">Elevation:</span>
+            <span>{{ wx.station.elevation }}</span>
           </div>
         </div>
       </div>
@@ -165,7 +177,19 @@ export default {
         },
         uv: null,
         icon: null,
-        wxIcon: null
+        wxIcon: null,
+        forecastToday: {
+          temp: {
+            high: {
+              f: '',
+              c: ''
+            },
+            low: {
+              f: '',
+              c: ''
+            },
+          }
+        }
       },
       forecast: {
         hourly: null
@@ -182,6 +206,8 @@ export default {
 
     axios.get(geoLocationApiUrl)
       .then((res) => {
+        console.log('ApiHelper.isSafeResponseForUriCreation(res)', ApiHelper.isSafeResponseForUriCreation(res));
+
         if (ApiHelper.isSafeResponseForUriCreation(res)) {
           this.geoCoordinates = res.data;
         } else {
@@ -338,7 +364,7 @@ export default {
 
     updateUI(locale) {
       let id = `${locale}`;
-      let apiEndpoint = `${API_PREFIX}/conditions/hourly${id}.json`;
+      let apiEndpoint = `${API_PREFIX}/conditions/forecast/hourly${id}.json`;
       let wxData = this.getData(id);
 
       if (!wxData) {
@@ -370,6 +396,8 @@ export default {
       }
 
       this.responseData = this.wx;
+
+      console.log('WX DATA:', this.wx);
     },
 
     setData(id, res) {
@@ -383,6 +411,7 @@ export default {
 
       let currentConditions = res.data.current_observation;
       let hrlyForecast = res.data.hourly_forecast;
+      let forecastToday = res.data.forecast.simpleforecast.forecastday[0];
 
       this.icon = WEATHER_ICON_MAP[currentConditions.icon_url];
 
@@ -436,6 +465,28 @@ export default {
         wxIcon: WEATHER_ICON_MAP[currentConditions.icon],
         forecast: {
           hourly: hrlyForecast
+        },
+        visibility: {
+          mi: currentConditions.visibility_mi,
+          km: currentConditions.visibility_km
+        },
+        wind: {
+          degrees: currentConditions.wind_degrees,
+          direction: currentConditions.wind_dir,
+          mph: currentConditions.wind_mph,
+          kph: currentConditions.wind_kph
+        },
+        forecastToday: {
+          temp: {
+            high: {
+              f: forecastToday.high.fahrenheit,
+              c: forecastToday.high.celsius
+            },
+            low: {
+              f: forecastToday.low.fahrenheit,
+              c: forecastToday.low.celsius
+            }
+          }
         }
       };
 
@@ -563,9 +614,10 @@ export default {
 </script>
 
 <style scoped>
-.weather {
-  padding-top: 0.75rem;
-  padding-bottom: 0.75rem;
+.weather-text {
+  padding-top: 0.5rem;
+  padding-bottom: 0.5rem;
+  font-size: 1.25rem;
 }
 
 .city {
@@ -579,10 +631,17 @@ export default {
 
 .wx-row {
   margin-bottom: 0.5rem;
+  font-size: 0.9375rem;
 }
 
 .wx-label {
   font-weight: 600;
+  display: inline-block;
+  min-width: 5rem;
+
+  + span {
+    display: inline-block;
+  }
 }
 
 .hourly-details {
