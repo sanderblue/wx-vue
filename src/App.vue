@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div id="app">
     <header class="row expanded header">
       <div class="small-2 large-5 wx-title">WxVue</div>
       <div class="small-12 large-6">
@@ -13,8 +13,7 @@
             </div>
             <ul v-show="hasItems" class="aq-results">
               <li v-for="item in searchResults">
-                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-q="item.l">
-                </div>
+                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-q="item.l"></div>
               </li>
             </ul>
           </div>
@@ -28,7 +27,7 @@
 
     <main class="" role="main">
       <div class="main-content large-9 xlarge-8 small-centered">
-        <currentconditions :locale="locale"></currentconditions>
+        <router-view></router-view>
       </div>
     </main>
 
@@ -67,6 +66,7 @@
 </template>
 
 <script>
+import VueRouter from 'vue-router';
 import _ from 'lodash';
 import jsonp from 'jsonp';
 import CurrentConditions from './components/CurrentConditions';
@@ -194,6 +194,8 @@ export default {
   },
 
   mounted() {
+    console.debug('Boop');
+
     $(document).foundation();
   }
 };
