@@ -20,7 +20,7 @@ Vue.config.productionTip = true;
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
+  el: '#app-main',
   template: '<App/>',
   components: { App },
   router

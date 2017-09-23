@@ -13,7 +13,9 @@
             </div>
             <ul v-show="hasItems" class="aq-results">
               <li v-for="item in searchResults">
-                <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-q="item.l"></div>
+                <router-link :to="item.l">
+                  <div v-text="item.name" v-on:click.passive="onClickSearchResult" v-bind:data-q="item.l"></div>
+                </router-link>
               </li>
             </ul>
           </div>
@@ -66,10 +68,11 @@
 </template>
 
 <script>
-import VueRouter from 'vue-router';
 import _ from 'lodash';
+import axios from 'axios';
 import jsonp from 'jsonp';
 import CurrentConditions from './components/CurrentConditions';
+import ApiHelper from './modules/api-helper';
 
 /**
  * Utilizes jsonp and does not count against Wunderground API usage rates.
@@ -113,6 +116,8 @@ export default {
     openMenu() {
       document.getElementById('open-menu').classList.add('hide');
       document.getElementById('close-menu').classList.remove('hide');
+
+      console.log('Test OPEN');
     },
 
     closeMenu() {
@@ -132,7 +137,6 @@ export default {
       }
 
       this.searchResults = [];
-
       this.userLocation = '';
 
       let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
@@ -161,6 +165,9 @@ export default {
     onClickSearchResult(e) {
       // Using the Wunderground prebuilt query path `/q/${result}`
       this.locale = e.currentTarget.dataset.q;
+
+      console.log('onClickSearchResult', this.locale);
+
       this.searchResults = [];
       this.userLocation = '';
 
@@ -172,7 +179,7 @@ export default {
     },
 
     onBlurSearch: _.debounce(function () {
-      this.searchResults = [];
+      // this.searchResults = [];
     }, 200),
 
     search: _.debounce(function (e) {
@@ -193,9 +200,77 @@ export default {
     }, 150)
   },
 
-  mounted() {
-    console.debug('Boop');
+  beforeCreate() {
+    let geoLocationApiUrl = 'http://freegeoip.net/json/';
 
+    axios.get(geoLocationApiUrl)
+      .then((res) => {
+        console.log('ApiHelper.isSafeResponseForUriCreation(res)', ApiHelper.isSafeResponseForUriCreation(res));
+
+        if (ApiHelper.isSafeResponseForUriCreation(res)) {
+          let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(res.data);
+
+          this.$router.push(`/q/${latLongParam}`);
+
+          this.geoCoordinates = res.data;
+        } else {
+          if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(
+              (position) => {
+                this.geoCoordinates = position.coords;
+
+                let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(position);
+
+                this.$router.push(`/q/${latLongParam}`);
+              },
+              (error) => {
+                console.warn(error.message);
+              }
+            );
+          }
+        }
+      })
+      .catch((error) => {
+        console.warn('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
+
+        if (error.response) {
+          // The request was made and the server responded with a status code
+          // that falls out of the range of 2xx
+          console.log('\n\n\n');
+          console.log('error.response.data', error.response.data);
+          console.log('error.response.status', error.response.status);
+          console.log('error.response.headers', error.response.headers);
+        } else if (error.request) {
+          // The request was made but no response was received
+          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+          // http.ClientRequest in node.js
+          console.log('error.request', error.request);
+        } else {
+          // Something happened in setting up the request that triggered an Error
+          console.log('error.message', error.message);
+        }
+
+        console.log('error.config:', error.config);
+        console.log('\n\n\n');
+
+        this.geoCoordinates = {
+          ip: '127.0.0.1',
+          country_code: 'US',
+          country_name: 'United States',
+          region_code: 'OR',
+          region_name: 'Oregon',
+          city: 'Portland',
+          zip_code: '97223',
+          time_zone: 'America/Los_Angeles',
+          latitude: 45.447,
+          longitude: -122.7668,
+          metro_code: 820
+        };
+      })
+    ;
+  },
+
+  mounted() {
     $(document).foundation();
   }
 };
