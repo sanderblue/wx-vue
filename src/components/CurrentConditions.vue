@@ -102,13 +102,11 @@ const WEATHER_ICON_MAP = {
 console.clear(); // JUST FOR DEBUGGING
 
 export default {
-  // name: 'chart',
-  props: [
-    'locale'
-  ],
+  props: [],
 
   data() {
     return {
+      locale: '',
       chartLegendStyles: {
         temp: {
           borderBottomWidth: '1px',
@@ -201,14 +199,40 @@ export default {
     }
   },
 
+  /**
+   * Handles when the destination is the same as the current route
+   * and only params are changing (e.g. /users/1 -> /users/2).
+   *
+   * @param  {Object}   toRoute
+   * @param  {Object}   fromRoute
+   * @param  {Function} next
+   * @return {void}
+   */
+  beforeRouteUpdate (toRoute, fromRoute, next) {
+    if (this.$route.params.locale) {
+      this.locale = toRoute.params.locale;
+    }
+
+    next();
+  },
+
   beforeCreate() {
+    // console.log('Current Conditions component BEFORECREATE', this.$route);
   },
 
   created() {
-    // console.debug('created...');
+    console.log('Conditions component CREATED', this.$route);
+
+    if (this.$route.params.locale) {
+      this.locale = this.$route.params.locale;
+    } else {
+      this.triggerIpLocationLookup();
+    }
   },
 
   mounted() {
+    console.log('Conditions component MOUNTED');
+
     this.canvasElement = this.$el.querySelector('canvas');
 
     this.chartHourly = new Chart(this.canvasElement, {
@@ -545,6 +569,76 @@ export default {
       ga('send', 'event', 'current conditions', action, value, {
         nonInteraction: false
       });
+    },
+
+    triggerIpLocationLookup() {
+      let geoLocationApiUrl = 'http://freegeoip.net/json/';
+
+      axios.get(geoLocationApiUrl)
+        .then((res) => {
+          console.log('ApiHelper.isSafeResponseForUriCreation(res)', ApiHelper.isSafeResponseForUriCreation(res));
+
+          if (ApiHelper.isSafeResponseForUriCreation(res)) {
+            let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(res.data);
+
+            this.$router.replace(`/q/${latLongParam}`);
+
+            this.geoCoordinates = res.data;
+          } else {
+            if (navigator.geolocation) {
+              navigator.geolocation.getCurrentPosition(
+                (position) => {
+                  // this.geoCoordinates = position.coords;
+
+                  let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(position);
+
+                  this.$router.push(`/q/${latLongParam}`);
+                },
+                (error) => {
+                  console.warn(error.message);
+                }
+              );
+            }
+          }
+        })
+        .catch((error) => {
+          console.warn('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
+
+          if (error.response) {
+            // The request was made and the server responded with a status code
+            // that falls out of the range of 2xx
+            console.log('\n\n\n');
+            console.log('error.response.data', error.response.data);
+            console.log('error.response.status', error.response.status);
+            console.log('error.response.headers', error.response.headers);
+          } else if (error.request) {
+            // The request was made but no response was received
+            // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
+            // http.ClientRequest in node.js
+            console.log('error.request', error.request);
+          } else {
+            // Something happened in setting up the request that triggered an Error
+            console.log('error.message', error.message);
+          }
+
+          console.log('error.config:', error.config);
+          console.log('\n\n\n');
+
+          this.geoCoordinates = {
+            ip: '127.0.0.1',
+            country_code: 'US',
+            country_name: 'United States',
+            region_code: 'OR',
+            region_name: 'Oregon',
+            city: 'Portland',
+            zip_code: '97223',
+            time_zone: 'America/Los_Angeles',
+            latitude: 45.447,
+            longitude: -122.7668,
+            metro_code: 820
+          };
+        })
+      ;
     }
   },
 

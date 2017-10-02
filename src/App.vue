@@ -1,7 +1,9 @@
 <template>
   <div id="app">
     <header class="row expanded header">
-      <div class="small-2 large-5 wx-title">WxVue</div>
+      <div class="small-2 large-5 wx-title">
+        WxVue
+      </div>
       <div class="small-12 large-6">
         <form class="header-form" v-on:submit="onSubmitSearch">
           <div class="input-group">
@@ -130,7 +132,7 @@ export default {
 
       this.userLocation = _.trim(this.userLocation);
 
-      console.log('Search Submit:', this.userLocation);
+      // console.log('Search Submit:', this.userLocation);
 
       if (this.userLocation !== '') {
         this.locale = this.userLocation;
@@ -165,11 +167,10 @@ export default {
     onClickSearchResult(e) {
       // Using the Wunderground prebuilt query path `/q/${result}`
       this.locale = e.currentTarget.dataset.q;
-
-      console.log('onClickSearchResult', this.locale);
-
       this.searchResults = [];
       this.userLocation = '';
+
+      // console.log('onClickSearchResult', this.locale);
 
       let gaValue = typeof this.locale === 'string' ? this.locale.toLowerCase() : this.locale;
 
@@ -198,76 +199,6 @@ export default {
         this.searchResults = data.RESULTS;
       });
     }, 150)
-  },
-
-  beforeCreate() {
-    let geoLocationApiUrl = 'http://freegeoip.net/json/';
-
-    axios.get(geoLocationApiUrl)
-      .then((res) => {
-        console.log('ApiHelper.isSafeResponseForUriCreation(res)', ApiHelper.isSafeResponseForUriCreation(res));
-
-        if (ApiHelper.isSafeResponseForUriCreation(res)) {
-          let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(res.data);
-
-          this.$router.push(`/q/${latLongParam}`);
-
-          this.geoCoordinates = res.data;
-        } else {
-          if (navigator.geolocation) {
-            navigator.geolocation.getCurrentPosition(
-              (position) => {
-                this.geoCoordinates = position.coords;
-
-                let latLongParam = ApiHelper.createLatitudeLongitudeUriParam(position);
-
-                this.$router.push(`/q/${latLongParam}`);
-              },
-              (error) => {
-                console.warn(error.message);
-              }
-            );
-          }
-        }
-      })
-      .catch((error) => {
-        console.warn('An error occurred attempting to use freegeoip.net for location services. Using default geolocation value instead.');
-
-        if (error.response) {
-          // The request was made and the server responded with a status code
-          // that falls out of the range of 2xx
-          console.log('\n\n\n');
-          console.log('error.response.data', error.response.data);
-          console.log('error.response.status', error.response.status);
-          console.log('error.response.headers', error.response.headers);
-        } else if (error.request) {
-          // The request was made but no response was received
-          // `error.request` is an instance of XMLHttpRequest in the browser and an instance of
-          // http.ClientRequest in node.js
-          console.log('error.request', error.request);
-        } else {
-          // Something happened in setting up the request that triggered an Error
-          console.log('error.message', error.message);
-        }
-
-        console.log('error.config:', error.config);
-        console.log('\n\n\n');
-
-        this.geoCoordinates = {
-          ip: '127.0.0.1',
-          country_code: 'US',
-          country_name: 'United States',
-          region_code: 'OR',
-          region_name: 'Oregon',
-          city: 'Portland',
-          zip_code: '97223',
-          time_zone: 'America/Los_Angeles',
-          latitude: 45.447,
-          longitude: -122.7668,
-          metro_code: 820
-        };
-      })
-    ;
   },
 
   mounted() {

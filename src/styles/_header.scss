@@ -28,6 +28,10 @@ $dark-linear-gradient: linear-gradient(rgba(30, 30, 30, 1), rgba(30, 30, 30, 0.3
 
 .wx-title {
     font-weight: 600;
+
+    a {
+        color: white;
+    }
 }
 
 .header-form {
@@ -84,6 +88,10 @@ $dark-linear-gradient: linear-gradient(rgba(30, 30, 30, 1), rgba(30, 30, 30, 0.3
 
         @include breakpoint(medium) {
             font-size: 0.8125rem;
+        }
+
+        a {
+            color: $black;
         }
 
         &:hover {

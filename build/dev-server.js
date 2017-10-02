@@ -11,6 +11,7 @@ var fs = require('fs')
 var express = require('express')
 var webpack = require('webpack')
 var proxyMiddleware = require('http-proxy-middleware')
+var connectHistoryApiFallback = require('connect-history-api-fallback')
 var webpackConfig = require('./webpack.dev.conf')
 
 // default port where dev server listens for incoming traffic
@@ -50,7 +51,10 @@ Object.keys(proxyTable).forEach(function (context) {
 })
 
 // handle fallback for HTML5 history API
-app.use(require('connect-history-api-fallback')())
+app.use(connectHistoryApiFallback({
+  // disableDotRule: true,
+  verbose: true // for extra debugging, but can be noisy
+}))
 
 // serve webpack bundle output
 app.use(devMiddleware)
@@ -60,23 +64,22 @@ app.use(devMiddleware)
 app.use(hotMiddleware)
 
 app.use((req, res, next) => {
-  fs.readFile('index.html', 'utf-8', (err, content) => {
-    if (err) {
-      console.log('We cannot open "index.html" file.')
-    }
+  // fs.readFile('index.html', 'utf-8', (err, content) => {
+  //   console.log('Using dev middleware to serve the index.html file.')
 
-    res.writeHead(200, {
-      'Content-Type': 'text/html; charset=utf-8'
-    })
+  //   if (err) {
+  //     console.log('We cannot open "index.html" file.')
 
-    res.end(content)
-  })
-  // if (!req.originalUrl.includes('/dist/', 0)) {
-  //   res.sendFile(path.join(__dirname, '../', 'index.html'));
-  // } else {
-  //   next();
-  // }
-});
+  //     return res.end(content)
+  //   }
+
+  //   res.writeHead(200, {
+  //     'Content-Type': 'text/html; charset=utf-8'
+  //   })
+
+  //   res.end(content)
+  // })
+})
 
 // serve pure static assets
 var staticPath = path.posix.join(config.dev.assetsPublicPath, config.dev.assetsSubDirectory)
