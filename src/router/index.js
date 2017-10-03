@@ -1,6 +1,5 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import BaseComponent from '@/components/BaseComponent';
 import CurrentConditions from '@/components/CurrentConditions';
 import NotFoundComponent from '@/components/NotFoundComponent';
 
@@ -8,7 +7,7 @@ Vue.use(Router);
 
 export default new Router({
   base: '/',
-  // mode: 'history',
+  mode: 'history',
   routes: [
     {
       path: '/',

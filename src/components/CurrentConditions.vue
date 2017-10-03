@@ -3,7 +3,22 @@
     <div v-if="error" class="text-center">
       <strong>{{ error.description }}</strong>
     </div>
-    <div v-if="!error">
+    <div v-if="results.length">
+      <li v-for="item in results">
+        <router-link :to="item.l">
+          <span v-text="item.city"></span>
+          <span v-text="item.state"></span>
+          <span v-text="item.country_name"></span>
+        </router-link>
+      </li>
+
+      <ul>
+        <li v-for="item in items">
+          {{ item.message }}
+        </li>
+      </ul>
+    </div>
+    <div v-if="!error && !results.length">
       <div class="row weather-condition">
         <div class="small-16 columns text-center">
           <h3>{{ wx.location.full }}</h3>
@@ -107,6 +122,7 @@ export default {
   data() {
     return {
       locale: '',
+      results: [],
       chartLegendStyles: {
         temp: {
           borderBottomWidth: '1px',
@@ -334,7 +350,15 @@ export default {
 
       if (!wxData) {
         this.getWxData(apiEndpoint)
-          .then(this.setData.bind(this, id))
+          .then((res) => {
+            console.log('Response:', res.data);
+
+            if (res.data.response.results && res.data.response.results.length) {
+              this.results = res.data.response.results;
+            } else {
+              this.setData.call(this, id);
+            }
+          })
           .then(() => {
             this.getHourlyForecastData(this.wx);
           });

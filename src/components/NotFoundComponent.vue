@@ -1,5 +1,8 @@
 <template>
-  <div class="404">Not found. No cities match your search query.</div>
+  <div class="error-page text-center">
+    <h2>404</h2>
+    <div class="error-404 text-center">Wups, we couldn't find that page.</div>
+  </div>
 </template>
 
 <script>
@@ -8,10 +11,16 @@
 
     data() {
       return {};
-    },
-
-    mounted() {
-      alert('Not Found Mounted');
     }
   };
 </script>
+
+<style scoped>
+  .error-page {
+    padding: 1rem;
+  }
+
+  .error-404 {
+    padding: 1rem;
+  }
+</style>
