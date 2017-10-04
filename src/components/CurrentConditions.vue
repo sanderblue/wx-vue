@@ -4,19 +4,13 @@
       <strong>{{ error.description }}</strong>
     </div>
     <div v-if="results.length">
-      <li v-for="item in results">
+      <div v-for="item in results" class="result-item">
         <router-link :to="item.l">
           <span v-text="item.city"></span>
           <span v-text="item.state"></span>
           <span v-text="item.country_name"></span>
         </router-link>
-      </li>
-
-      <ul>
-        <li v-for="item in items">
-          {{ item.message }}
-        </li>
-      </ul>
+      </div>
     </div>
     <div v-if="!error && !results.length">
       <div class="row weather-condition">
@@ -350,15 +344,7 @@ export default {
 
       if (!wxData) {
         this.getWxData(apiEndpoint)
-          .then((res) => {
-            console.log('Response:', res.data);
-
-            if (res.data.response.results && res.data.response.results.length) {
-              this.results = res.data.response.results;
-            } else {
-              this.setData.call(this, id);
-            }
-          })
+          .then(this.setData.bind(this, id))
           .then(() => {
             this.getHourlyForecastData(this.wx);
           });
@@ -391,6 +377,10 @@ export default {
 
     setData(id, res) {
       console.log('Setting res... ', res);
+
+      if (res.data.response.results && res.data.response.results.length) {
+        return this.results = res.data.response.results;
+      }
 
       if (res.data.response && res.data.response.error) {
         return this.error = res.data.response.error;
@@ -746,5 +736,9 @@ export default {
 .legend-key {
   display: inline-block;
   vertical-align: middle;
+}
+
+.result-item {
+  line-height: 2;
 }
 </style>

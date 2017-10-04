@@ -180,7 +180,7 @@ export default {
     },
 
     onBlurSearch: _.debounce(function () {
-      // this.searchResults = [];
+      this.searchResults = [];
     }, 200),
 
     search: _.debounce(function (e) {
